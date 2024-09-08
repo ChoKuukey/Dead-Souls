@@ -8,6 +8,6 @@ class MainWindow:
         screen = pygame.display.set_mode((screen_size[0], screen_size[1]))
 
     def __str__(self):
-        with open("data/settings.yaml", 'r') as settings:
+        with open("../data/settings.yaml", 'r') as settings:
             read_data = yaml.load(settings, Loader = yaml.FullLoader)
         return f"Dead Souls - {read_data['version']}"
