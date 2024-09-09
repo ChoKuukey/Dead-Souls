@@ -19,8 +19,6 @@ def main(*argc, **argv):
 
     mainWin = pygame.display.set_mode((get_screen_size()[0], get_screen_size()[1]))
 
-    # print(str(mainWin))
-
     OBJECTS.append(Button(mainWin, 30, 30, 200, 50, 'Войти', func))
     
     while True:
