@@ -2,28 +2,32 @@
 
 import pygame
 
-from fonts import button_font
-
 from widgets.widget import Widget
 
 
 class Button(Widget):
     """ Абстрактная Кнопка """
-    def __init__(self, window: pygame.Surface, x: int, y: int, width: int, height: int, buttonText: str = 'Button', function = None, onePress = False) -> None:
+    def __init__(self, window: pygame.Surface, x: int, y: int, width: int, height: int, buttonText: str = 'Button', 
+                fontSize: int = 20, fontColor: tuple = (255, 255, 255), function = None, onePress = False, color: tuple = (0, 0, 0)) -> None:
         super().__init__(window, x, y, width, height)
+
+        self.__font = pygame.font.Font('../fonts/OffBit-101Bold.ttf', fontSize)
+        self.__fontColor = fontColor
+
         self.__window = window
         self.__buttonText = buttonText
         self.__function = function
+        self.__color = color
         self.__onePress = onePress
         self.__alreadyPressed = False
 
-        self.__buttonSurf = button_font.render(buttonText, True, (255, 255, 255))
+        self.__buttonSurf = self.__font.render(self.__buttonText, True,self.__fontColor)
 
 
-    def process(self) -> None:
+    def process(self, event) -> None:
         mousePos = pygame.mouse.get_pos()   # get mouse position
 
-        self.surface.fill(255)
+        self.surface.fill(self.__color)
 
         if self.rect.collidepoint(mousePos):
             if pygame.mouse.get_pressed(num_buttons = 3)[0]:

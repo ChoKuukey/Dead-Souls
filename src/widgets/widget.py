@@ -1,8 +1,8 @@
 """ Модуль Виджета """
-
 from abc import ABC, abstractmethod
 import pygame
 
+pygame.init()
 
 class Widget(ABC):
     """ Абстрактный виджет """
@@ -19,5 +19,5 @@ class Widget(ABC):
         self.window.blit(self.surface, self.rect)
 
     @abstractmethod
-    def process(self) -> None:
+    def process(self, event) -> None:
         pass
