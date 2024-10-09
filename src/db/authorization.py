@@ -1,3 +1,5 @@
+""" Модуль для авторизации """
+
 from db.db import (
     Connection,
 )
@@ -6,6 +8,7 @@ from scenes.register import Register_Scene
 
 
 class Authorization():
+    """ Класс для авторизации """
     def __init__(self, connection: Connection) -> None:
         self.connection = connection
         self.db = None
@@ -22,7 +25,7 @@ class Authorization():
         self.db = self.connection.db
         self.cursor = self.connection.cursor
 
-        register_scene = Register_Scene(screen, settings, self.db, self.connection.settings)
+        register_scene = Register_Scene(screen, settings, self.db, self.connection.settings, bg="../src/imgs/cool_bg.png")
         register_scene.main()
 
 

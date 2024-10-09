@@ -12,7 +12,8 @@ class Widget(ABC):
         self.y = y
         self.width = width
         self.height = height
-        self.surface = pygame.Surface((self.width, self.height))
+        
+        self.surface = pygame.Surface((width, height), pygame.SRCALPHA)
         self.rect = pygame.Rect((self.x, self.y, self.width, self.height))
 
     def draw(self) -> None:

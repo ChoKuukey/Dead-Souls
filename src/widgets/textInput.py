@@ -6,54 +6,124 @@ import time
 pygame.init()
 
 class TextInput(Widget):
-    def __init__(self, window: pygame.Surface, x: int, y: int, width: int, height: int, placeholder: str = None, fontSize: int = 20, textColor: tuple = (255, 255, 255), bg_color = (0, 0, 0), *flags) -> None:
+    def __init__(self, window: pygame.Surface, x: int, y: int, width: int, height: int, placeholder: str = None, fontSize: int = 20, 
+                 textColor: tuple = (255, 255, 255), bg_color = (0, 0, 0), passt: bool = False, length: int = 20) -> None:
         super().__init__(window, x, y, width, height)
 
-        self.__font = pygame.font.Font('../fonts/OffBit-101Bold.ttf', fontSize)
-        self.__fontSize = fontSize
+        try:
+            self.font = pygame.font.Font('../fonts/OffBit-101Bold.ttf', fontSize)
+        except:
+            print(">> TextInput ошиб: Файл шрифта не найден")
+        self.fontSize = fontSize
 
-        self.__placeholder = placeholder
-        self.__textColor = textColor
-        self.__bg_color = bg_color
-        self.__text = '123'
+        self.placeholder = None
+        self.isPlH = False  # Есть ли плейсхолдер
 
-        self.__active = False   # Флаг активности
+        if self.placeholder is not None:
+            self.isPlH = True
 
-        self.__TeInSurface = self.__font.render(self.__text, True, self.__textColor)
+        self.textColor = textColor
+        self.bg_color = bg_color
+
+        # Флаг пароля
+        self.passt = passt
+
+        # Текст, который будет показываться
+        if self.placeholder is not None:
+            self.text = self.placeholder
+        else:
+            self.text = ""
+
+        # длина текста
+        self.length = length
+
+        # Переменная текста
+        self.textvariable = ""
+
+        self.active = False   # Флаг активности
+
+        self.TeInSurface = self.font.render(self.text, True, self.textColor)
 
     def process(self, event) -> None:
-        self.surface.fill(self.__bg_color)
+        self.surface.fill(self.bg_color)
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Если пользователь нажал на инпут бокс
             if self.rect.collidepoint(event.pos):
-                if not self.__active:
+                if not self.active:
                     # Если активен, то выключаем
-                    self.__active = True
-                    # pygame.key.start_text_input()
-                    print(self.__active)
+                    self.active = True
             else:
-                self.__active = False
-                # pygame.key.stop_text_input()
-        if event.type == pygame.KEYDOWN and self.__active:
+                self.active = False
+        if event.type == pygame.KEYDOWN and self.active:
             
             if event.key == pygame.K_RETURN:
-                time.sleep(0.1)
-                print(self.__text)
-                self.__text = ''
-                self.typing = True
+                time.sleep(0.125)
+                self.text = ''
             elif event.key == pygame.K_BACKSPACE:
-                time.sleep(0.1)
-                self.__text = self.__text[:-1]
-                self.typing = True
-        elif event.type == pygame.TEXTINPUT and self.__active:
-            time.sleep(0.12)
-            self.__text += event.text
-            self.__typing = True
-        self.__TeInSurface = self.__font.render(self.__text, True, self.__textColor)
+                time.sleep(0.125)
+                self.text = self.text[:-1]
+                self.textvariable = self.textvariable[:-1]
+        if event.type == pygame.TEXTINPUT and self.active and len(self.textvariable) < self.length:
+            # Флаг пароля
+            if self.passt:
+                self.textvariable += event.text
+                self.text += "*"
+            else:
+                self.text += event.text
+                self.textvariable += event.text
+            time.sleep(0.125)
 
-        self.surface.blit(self.__TeInSurface, [
-            5,
-            self.rect.height / 2 - self.__TeInSurface.get_rect().height / 2
+        self.TeInSurface = self.font.render(self.text, True, self.textColor)
+
+        self.surface.blit(self.TeInSurface, [
+            self.rect.width / 20,
+            self.rect.height / 2 - self.TeInSurface.get_rect().height / 2
+        ])
+
+        self.draw()
+
+
+class ImageTextInput(TextInput):
+    def __init__(self, window: pygame.Surface, x: int, y: int, width: int, height: int, placeholder: str = None, fontSize: int = 20, 
+                 textColor: tuple = (255, 255, 255), imagePath: str = None, passt: bool = False, length: int = None) -> 20:
+        super().__init__(window, x, y, width, height, placeholder, fontSize, textColor, None, passt, length)
+
+        # Изображение и его приведение к нужному размеру
+        self.image = pygame.image.load(imagePath).convert_alpha()
+        self.scaledimage = pygame.transform.scale(self.image, (width, height))
+
+    def process(self, event) -> None:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # Если пользователь нажал на инпут бокс
+            if self.rect.collidepoint(event.pos):
+                if not self.active:
+                    # Если активен, то выключаем
+                    self.active = True
+            else:
+                self.active = False
+        if event.type == pygame.KEYDOWN and self.active:  
+            if event.key == pygame.K_BACKSPACE:
+                time.sleep(0.125)
+                self.text = self.text[:-1]
+                self.textvariable = self.textvariable[:-1]
+        if event.type == pygame.TEXTINPUT and self.active and len(self.textvariable) < self.length:
+            # Флаг пароля
+            if self.passt:
+                self.textvariable += event.text
+                self.text += "*"
+            else:
+                self.text += event.text
+                self.textvariable += event.text
+            time.sleep(0.125)
+
+        # Рисуем изображение
+        self.surface.blit(self.scaledimage, (0, 0))
+        # Текст
+        self.TeInSurface = self.font.render(self.text, True, self.textColor)
+
+        self.surface.blit(self.TeInSurface, [
+            self.rect.width / 20,
+            self.rect.height / 2 - self.TeInSurface.get_rect().height / 2
         ])
 
         self.draw()

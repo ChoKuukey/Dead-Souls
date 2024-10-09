@@ -5,6 +5,7 @@ import yaml
 
 
 class Connection:
+    """ Класс для подключения к базе данных """
     def __init__(self, db, settings: dict) -> None:
         self.db = db
         self.cursor = None
