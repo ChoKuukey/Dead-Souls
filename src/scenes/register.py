@@ -58,13 +58,16 @@ class Register_Scene(Scene):
         self.run = False
 
     def main(self) -> None:
+        print(">> Запуск Запуск сцены регистрации")
         """ Главная функция """
         email_input = ImageTextInput(self.screen, (self.screen.get_width() / 2 - 200), 130, 400, 80, "Почта", 25, (255, 255, 255), imagePath="../src/imgs/textinput.png", length = 19)
         user_name_input = ImageTextInput(self.screen, (self.screen.get_width() / 2 - 200), 250, 400, 80, "Имя", 35, (255, 255, 255), imagePath="../src/imgs/textinput.png", length = 20)
         passwrod_input = ImageTextInput(self.screen, (self.screen.get_width() / 2 - 200), 370, 400, 80, "Пароль", 45, (255, 255, 255), imagePath="../src/imgs/textinput.png", passt = True, length = 35)
         error_label = Label(self.screen, 0, 460, self.screen.get_width(), 50, 40, '', textColor = (178,34,34), bg_alpha = 0)
         # confirm_code_input = ImageTextInput(self.screen, (self.screen.get_width() / 2 + 10), 610, 190, 70, "Код", 35, (255, 255, 255), imagePath="../src/imgs/textinput.png", length = 7)
+        
         self.run = True
+
         self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 160), 20, 320, 50, 50, 'Регистрация', textColor = (255, 255, 255), bg_alpha = 0))
         self.objects.append(Label(self.screen, 295, 90, 100, 50, 30, 'Почта', textColor = (255, 255, 255), bg_alpha = 0))
         self.objects.append(email_input)
@@ -74,8 +77,9 @@ class Register_Scene(Scene):
         self.objects.append(passwrod_input)
         self.objects.append(error_label)
         self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 510, 400, 80, 'Подтвердить', 50, (255, 255, 255), 
-                                        function = lambda: self.registration.register(ConfirmCode_scene, 
+                                        function = lambda: self.registration.register(self.screen, 
                                                                                       MainGame_scene, 
+                                                                                      self.settings,
                                                                                       self.__DB_CONFIG, 
                                                                                       email_input.textvariable, 
                                                                                       user_name_input.textvariable, 

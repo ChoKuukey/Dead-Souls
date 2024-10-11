@@ -14,6 +14,14 @@ class Connection:
     def __str__(self) -> str:
         return "class Connection"
 
+    def init_db(self):
+        """ Метод для создания базы данных """
+        try:
+            self.cursor.execute(f"CREATE TABLE IF NOT EXISTS  {self.settings['table']} (id SERIAL PRIMARY KEY, email VARCHAR(255), name VARCHAR(255), password VARCHAR(255))")
+            self.db.commit()
+        except psycopg2.OperationalError:
+            print(">> Не удалось создать базу данных")
+
     def connect(self) -> psycopg2.connect:
         """ Метод для подключения к бд """
         try:

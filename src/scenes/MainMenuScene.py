@@ -46,8 +46,18 @@ class MainScene(Scene):
             self.bg = (0, 0, 0)
 
         self.objects = []
-        self.connetion = Connection(self.__DB, self.__DB_CONFIG)
-        self.authorization = Authorization(self.connetion)
+        self.connection = Connection(self.__DB, self.__DB_CONFIG)
+
+        self.connection.connect()
+
+        self.db = self.connection.db
+        self.cursor = self.connection.cursor
+
+        self.connection.init_db()
+
+        self.connection.close(self.db, self.cursor)
+
+        self.authorization = Authorization(self.connection)
 
     def __str__(self) -> str:
         return "class MainScene"

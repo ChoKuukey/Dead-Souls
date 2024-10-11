@@ -12,6 +12,7 @@ from db.db import (
     Connection
 )
  
+from scenes.ConfirmCodeScene import ConfirmCode_scene
 
 pygame.init()
 
@@ -39,14 +40,14 @@ class Registration:
     def __str__(self) -> str:
         return "class Registration"
     
-    def register(self, confirm_code_screen, main_game_screen, settings: dict, email: str, username: str, password: str, error_label: Label) -> None:
+    def register(self, confirm_code_screen, main_game_screen, settings: dict, db_config: dict, email: str, username: str, password: str, error_label: Label) -> None:
         self.connection.connect()
         self.db = self.connection.db
         self.cursor = self.connection.cursor
 
         """ Проверка на уникальность почты и правильность почты """
         try:
-            self.cursor.execute(f"SELECT * FROM {settings['table']} WHERE email = %s", (email,))
+            self.cursor.execute(f"SELECT * FROM {db_config['table']} WHERE email = %s", (email,))
             if self.cursor.fetchone() is not None:
                 error_label.set_text("Такая почта уже зарегистрирована")
                 self.connection.close(self.db, self.cursor) 
@@ -62,7 +63,7 @@ class Registration:
         
         """ Проверка на уникальность имени """
         try:
-            self.cursor.execute(f"SELECT * FROM {settings['table']} WHERE name = %s", (username,))
+            self.cursor.execute(f"SELECT * FROM {db_config['table']} WHERE name = %s", (username,))
             if self.cursor.fetchone() is not None:
                 error_label.set_text("Такое имя уже зарегистрировано")
                 self.connection.close(self.db, self.cursor) 
@@ -88,7 +89,7 @@ class Registration:
             return
 
         """ Если пользователей нет, то id должен начинаться с 0 """
-        id = self.cursor.execute(f"SELECT MAX(id) FROM {settings['table']}")
+        id = self.cursor.execute(f"SELECT MAX(id) FROM {db_config['table']}")
         max_id = self.cursor.fetchone()
         if max_id[0] is None:
             max_id = 0
@@ -96,14 +97,25 @@ class Registration:
             max_id = max_id[0]
         max_id += 1
 
+
+
+        
+
+
         # Дата создания
         time_r = datetime.datetime.now()
         create_at = time_r.strftime("%Y-%m-%d %H:%M:%S")
 
         try:
-            self.cursor.execute(f"INSERT INTO {settings['table']} (id, email, name, password_digest, create_at) VALUES (%s, %s, %s, %s, %s)", (max_id, email, username, password, create_at))
+            self.cursor.execute(f"INSERT INTO {db_config['table']} (id, email, name, password_digest, create_at) VALUES (%s, %s, %s, %s, %s)", (max_id, email, username, password, create_at))
             self.db.commit()
         except psycopg2.OperationalError:
             print(">> Не удалось зарегистрироваться")
 
         self.connection.close(self.db, self.cursor) 
+
+
+        confirm_code_scene = ConfirmCode_scene(confirm_code_screen, settings, self.db, db_config, bg = "../src/imgs/cool_bg.png")
+        confirm_code_scene.main()
+
+        self.connection.close(self.db, self.cursor)
