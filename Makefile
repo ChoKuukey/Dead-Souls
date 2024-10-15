@@ -1,4 +1,4 @@
-SRC = src/server/server.c src/server/server.h
+SRC = src/server/server.c src/server/common.h
 TARGET = bin/server.exe
 
 .PHONY: all
