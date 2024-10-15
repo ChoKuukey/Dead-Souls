@@ -18,6 +18,21 @@ class Connection:
         """ Метод для создания базы данных """
         try:
             self.cursor.execute(f"CREATE TABLE IF NOT EXISTS  {self.settings['table']} (id SERIAL PRIMARY KEY, email VARCHAR(255), name VARCHAR(255), password VARCHAR(255))")
+            self.cursor.execute(f"""
+                                    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+                                    CREATE TABLE IF NOT EXISTS {self.settings['session_table']} (
+                                    id SERIAL PRIMARY KEY,
+                                    user_id INTEGER NOT NULL,
+                                    session_id UUID NOT NULL DEFAULT uuid_generate_v4(),
+                                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                    online BOOLEAN NOT NULL DEFAULT FALSE,
+                                    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES {self.settings['table']}(id)
+                                    );
+
+                                    CREATE INDEX IF NOT EXISTS idx_session_id ON sessions (session_id);
+                                    CREATE INDEX IF NOT EXISTS idx_user_id ON sessions (user_id);""")
             self.db.commit()
         except psycopg2.OperationalError:
             print(">> Не удалось создать базу данных")

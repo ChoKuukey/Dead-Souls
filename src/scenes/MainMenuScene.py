@@ -68,7 +68,7 @@ class MainScene(Scene):
         print(">> Запуск Dead Souls")
 
         self.run = True
-        self.objects.append(ImageButton(self.screen, 30, 30, 325, 110, 'Войти', 50, (255, 255, 255), self.authorization.signin, imagePath = "../src/imgs/btn.png"))
+        self.objects.append(ImageButton(self.screen, 30, 30, 325, 110, 'Войти', 50, (255, 255, 255), lambda: self.authorization.signin(self.screen, self.settings), imagePath = "../src/imgs/btn.png"))
         self.objects.append(ImageButton(self.screen, 30, 180, 325, 110, 'Регистрация', 50, (255, 255, 255), lambda: self.authorization.signup(self.screen, self.settings), imagePath = "../src/imgs/btn.png"))
         self.objects.append(ImageButton(self.screen, 30, 330, 325, 110, 'Выход', 50, (255, 255, 255), lambda: sys.exit(0), imagePath = "../src/imgs/btn.png"))
 

@@ -3,4 +3,6 @@ user: postgres
 host: localhost
 password: 48BitColor48
 
-table: dead_souls_test_db
+table: users
+
+session_table: sessions

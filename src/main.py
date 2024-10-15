@@ -5,6 +5,8 @@ import os
 import sys
 
 from scenes.MainMenuScene import MainScene
+from scenes.ConfirmCodeScene import ConfirmCode_scene
+from scenes.MainGameScrene import MainGameScene
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -14,6 +16,9 @@ from data.dataFuncs import (
 )
 
 pygame.init()
+
+game_icon = pygame.image.load("../src/imgs/icon.png")
+pygame.display.set_icon(game_icon)
 
 __SETTINGS = get_settings("../data/settings.yaml")
 __DB_CONFIG = get_db_config("../data/db/db_config.yaml")
@@ -26,3 +31,7 @@ pygame.display.set_caption('Dead Souls')
 if __name__ == '__main__':
     mainWin = MainScene(__SCREEN, __SETTINGS, __DB, __DB_CONFIG, bg="../src/imgs/cool_bg.png")
     mainWin.main()
+    # ccs = ConfirmCode_scene(__SCREEN, __SETTINGS, __DB, __DB_CONFIG, bg="../src/imgs/cool_bg.png")
+    # ccs.main()
+    # maim_game_scene = MainGameScene(__SCREEN, __SETTINGS, __DB, __DB_CONFIG, "../src/imgs/main_bg.png")
+    # maim_game_scene.main()

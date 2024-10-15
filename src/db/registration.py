@@ -14,6 +14,8 @@ from db.db import (
  
 from scenes.ConfirmCodeScene import ConfirmCode_scene
 
+from mail.ConfirmCode import send_confirm_code 
+
 pygame.init()
 
 
@@ -39,7 +41,7 @@ class Registration:
 
     def __str__(self) -> str:
         return "class Registration"
-    
+
     def register(self, confirm_code_screen, main_game_screen, settings: dict, db_config: dict, email: str, username: str, password: str, error_label: Label) -> None:
         self.connection.connect()
         self.db = self.connection.db
@@ -61,7 +63,7 @@ class Registration:
             self.connection.close(self.db, self.cursor) 
             return
         
-        """ Проверка на уникальность имени """
+        """ Проверка на уникальность имени и правильность имени """
         try:
             self.cursor.execute(f"SELECT * FROM {db_config['table']} WHERE name = %s", (username,))
             if self.cursor.fetchone() is not None:
@@ -98,10 +100,6 @@ class Registration:
         max_id += 1
 
 
-
-        
-
-
         # Дата создания
         time_r = datetime.datetime.now()
         create_at = time_r.strftime("%Y-%m-%d %H:%M:%S")
@@ -111,11 +109,14 @@ class Registration:
             self.db.commit()
         except psycopg2.OperationalError:
             print(">> Не удалось зарегистрироваться")
+            return
 
         self.connection.close(self.db, self.cursor) 
 
+        """ Отправка кода подтверждения """
+        sent_code =send_confirm_code(email, error_label)
 
-        confirm_code_scene = ConfirmCode_scene(confirm_code_screen, settings, self.db, db_config, bg = "../src/imgs/cool_bg.png")
+        confirm_code_scene = ConfirmCode_scene(confirm_code_screen, settings, self.db, db_config, bg = "../src/imgs/cool_bg.png", sent_code = sent_code, email = email)
         confirm_code_scene.main()
 
         self.connection.close(self.db, self.cursor)
