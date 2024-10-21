@@ -1,8 +1,17 @@
 """ Модуль главного игрового экрана """
 import pygame
 import sys
+import socket
 
 from scenes.scene import Scene
+from client.client import (
+    connect_to_server,
+    close_connection_to_server
+) 
+
+from widgets.button import (
+    ImageButton
+)
 
 
 pygame.init()
@@ -39,8 +48,10 @@ class MainGameScene(Scene):
 
         self.run = True
 
+        self.objects.append(ImageButton(self.screen, 30, 330, 325, 110, 'Выход', 50, (255, 255, 255), lambda: sys.exit(0), imagePath = "../src/imgs/btn.png"))
         
         print(">> Запуск Основной игровой сцены")
+        socket_peer = connect_to_server("127.0.0.1", 8080)
 
         while self.run:
             if isinstance(self.scaledimage, pygame.surface.Surface):
@@ -49,6 +60,7 @@ class MainGameScene(Scene):
                 self.screen.fill((0, 0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    close_connection_to_server(socket_peer)
                     pygame.quit()
                     sys.exit()
                     self.run = False
