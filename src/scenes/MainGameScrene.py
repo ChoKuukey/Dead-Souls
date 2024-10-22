@@ -1,13 +1,12 @@
 """ Модуль главного игрового экрана """
 import pygame
 import sys
-import socket
+import time
+from multiprocessing import Process
+import threading
 
 from scenes.scene import Scene
-from client.client import (
-    connect_to_server,
-    close_connection_to_server
-) 
+from client.client import Client
 
 from widgets.button import (
     ImageButton
@@ -44,14 +43,31 @@ class MainGameScene(Scene):
             print(">> Фон может быть только изображением или цветом в формате (0, 0, 0)!")
             self.bg = (0, 0, 0)
 
+    def __exit_game(self, client_thread: threading.Thread, client) -> None:
+        client.close_connection_to_server()
+        self.run = False
+        sys.exit()
+
     def main(self, *argc) -> None:
 
         self.run = True
 
-        self.objects.append(ImageButton(self.screen, 30, 330, 325, 110, 'Выход', 50, (255, 255, 255), lambda: sys.exit(0), imagePath = "../src/imgs/btn.png"))
+        client_thread = None
+        socket_peer = None
+
+        client = Client()
+
+        self.objects.append(ImageButton(self.screen, 30, 330, 325, 110, 'Выход', 50, (255, 255, 255), lambda: self.__exit_game(client_thread, client), imagePath = "../src/imgs/btn.png"))
         
         print(">> Запуск Основной игровой сцены")
-        socket_peer = connect_to_server("127.0.0.1", 8080)
+
+        print(">> Запуск процесса клиента...")
+
+        client_thread = threading.Thread(target=client.connect_to_server, args=("127.0.0.1", 8080))
+        client_thread.daemon = True
+        client_thread.start()
+
+        print(">> Запущен процесс клиента.")
 
         while self.run:
             if isinstance(self.scaledimage, pygame.surface.Surface):
@@ -60,7 +76,7 @@ class MainGameScene(Scene):
                 self.screen.fill((0, 0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    close_connection_to_server(socket_peer)
+                    client.close_connection_to_server()
                     pygame.quit()
                     sys.exit()
                     self.run = False

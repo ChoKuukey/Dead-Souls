@@ -2,7 +2,5 @@ dbname: postgres
 user: postgres
 host: localhost
 password: 48BitColor48
-
 table: users
-
 session_table: sessions

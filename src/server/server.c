@@ -1,8 +1,11 @@
 #include "common.h"
 #include <ctype.h>
+#include "db.h"
 
 
 int main(void) {
+    connect_to_db();
+    
     #if defined(_WIN32) || defined(_WIN64)
         WSADATA d;
         if (WSAStartup(MAKEWORD(2, 2), &d)) {

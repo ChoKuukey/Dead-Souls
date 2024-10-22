@@ -1,23 +1,20 @@
-SRC = src/server/server.c src/server/common.h
+SRC = src/server/server.c src/server/data_func.c src/server/db.c
 TARGET_WIN = bin/server.exe
 TARGET_LINUX = bin/linux_server
 
-.PHONY: all win-linux
+.PHONY: все win linux
 
-all: win-linux
+все: win linux
 
 win: $(TARGET_WIN)
 
-$(TARGET_WIN): src/server/server.o
-	gcc -o $(TARGET_WIN) src/server/server.o -lws2_32
-
-src/server/server.o: $(SRC)
-	gcc -c -o src/server/server.o src/server/server.c
+$(TARGET_WIN): src/server/server.o src/server/data_func.o src/server/db.o
+	gcc -o $(TARGET_WIN) src/server/server.o src/server/data_func.o src/server/db.o -lws2_32
 
 linux: $(TARGET_LINUX)
 
-$(TARGET_LINUX): src/server/server.o
-	gcc -o $(TARGET_LINUX) src/server/server.o
+$(TARGET_LINUX): src/server/server.o src/server/data_func.o src/server/db.o
+	gcc -o $(TARGET_LINUX) ${SRC} -lpq
 
-src/server/server.o: $(SRC)
-	gcc -c -o src/server/server.o src/server/server.c
+%.o: %.c
+	gcc -c -o $*.o $*.c
