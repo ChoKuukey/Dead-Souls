@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "*.sass": "scss",
-        "db.h": "c",
-        "data_func.h": "c"
-    }
-}
