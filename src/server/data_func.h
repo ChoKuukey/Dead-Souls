@@ -4,6 +4,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 
-char* get_db_config(const char* src);
+char** get_db_config(const char* src);
+static void parse_yaml(char* yaml_string, char** values, int* count);
+static char* read_file(const char* filename);
