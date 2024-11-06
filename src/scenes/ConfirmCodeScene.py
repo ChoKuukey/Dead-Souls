@@ -103,13 +103,14 @@ class ConfirmCode_scene(Scene):
             else:
                 self.screen.fill((0, 0, 0))
             for event in pygame.event.get():
+                self.event = event
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                     self.run = False
             
             for object in self.objects:
-                    object.process(event)
+                    object.process(self.event)
             
 
             pygame.display.flip()

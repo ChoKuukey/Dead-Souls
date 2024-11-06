@@ -1,24 +1,8 @@
-#include "data_func.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
-char** get_db_config(const char* src) {
-    char* yaml_string = read_file(src);
-
-    if (!yaml_string) {
-        fprintf(stderr, ">> Error reading file \"%s\"\n", src);
-        exit(1);
-    }
-
-    int count = 0;
-
-    char** config = (char**)malloc(6 * sizeof(char*));
-    parse_yaml(yaml_string, config, &count);
-
-    for (int i = 0; i < count; ++i) {
-        printf("%s\n", config[i]);
-    }
-    
-    return config;
-}
 
 static char* read_file(const char* filename) {
     FILE* file = fopen(filename, "r");
@@ -85,4 +69,24 @@ static void parse_yaml(char* yaml_string, char** config, int* count) {
     } else {
         *count = 0;
     }
+}
+
+char** get_db_config(const char* src) {
+    char* yaml_string = read_file(src);
+
+    if (!yaml_string) {
+        fprintf(stderr, ">> Error reading file \"%s\"\n", src);
+        exit(1);
+    }
+
+    int count = 0;
+
+    char** config = (char**)malloc(6 * sizeof(char*));
+    parse_yaml(yaml_string, config, &count);
+
+    // for (int i = 0; i < count; ++i) {
+    //     printf("%s\n", config[i]);
+    // }
+    
+    return config;
 }

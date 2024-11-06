@@ -24,8 +24,8 @@ pygame.init()
 fpsClock = pygame.time.Clock()
 
 class SignInScene(Scene):
-    def __init__(self, screen, settings: dict, db, db_config: dict, bg: str | tuple = None) -> None:
-        super().__init__(screen, settings)
+    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str | tuple = None) -> None:
+        super().__init__(screen, settings, client)
         self.__DB = db
         self.__DB_CONFIG = db_config
 
@@ -102,7 +102,7 @@ class SignInScene(Scene):
 
         error_label.set_text("Успешно")
 
-        main_game = MainGameScene(self.screen, self.settings, self.db, self.__DB_CONFIG, bg = "../src/imgs/main_bg.png")
+        main_game = MainGameScene(self.screen, self.settings, self.client, self.db, self.__DB_CONFIG, bg = "../src/imgs/main_bg.png")
         main_game.main()
 
         self.connection.close(self.__DB, self.cursor)
@@ -124,7 +124,7 @@ class SignInScene(Scene):
         self.objects.append(passwrod_input)
         self.objects.append(error_label)
         self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 510, 400, 80, 'Подтвердить', 50, (255, 255, 255), 
-                                        function = lambda: self.account_enter(email_input.textvariable, passwrod_input.textvariable, error_label),
+                                        function = lambda: self.client.account_enter(email_input.textvariable, passwrod_input.textvariable, error_label),
                                         imagePath="../src/imgs/btn.png"))
         self.objects.append(CheckBox(self.screen, (self.screen.get_width() / 2 + 200), 380, 50, 50, function = lambda: self.change_pass_vision(passwrod_input)))
         self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 610, 190, 70, 'Назад', 45, (255, 255, 255), self.__back, imagePath="../src/imgs/btn.png"))
@@ -137,13 +137,14 @@ class SignInScene(Scene):
             else:
                 self.screen.fill((0, 0, 0))
             for event in pygame.event.get():
+                self.event = event
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                     self.run = False
             
             for object in self.objects:
-                    object.process(event)
+                object.process(self.event)
                 
 
             pygame.display.flip()

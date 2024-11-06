@@ -2,6 +2,15 @@
 
 import socket
 import time
+import os
+import sys
+
+from widgets.label import Label
+
+""" добавляет родительский каталог текущего скрипта в начало системного пути (sys.path). Это позволяет скрипту импортировать модули из родительского каталога. """
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
+from data.dataFuncs import parse_yaml_config
 
 class Client:
     def __init__(self):
@@ -54,3 +63,17 @@ class Client:
 
     def close_connection_to_server(self):
         self.run = False
+
+    def account_enter(self, email: str, password: str, error_label: Label) -> None:
+        """ Метод для авторизации пользователя """
+        flags = parse_yaml_config("../src/server/flags.yaml")
+        account_enter_flag = flags["account_enter"]
+
+        query_string = f"{email} {password} {account_enter_flag}"
+        send_data = self.socket_peer.send(query_string.encode("utf-8"))
+
+        if send_data:
+            print(f">> Sent: {query_string} to server to autorization operation, size sent data: {send_data}")
+        else:
+            print(">> No data sent.")
+            return

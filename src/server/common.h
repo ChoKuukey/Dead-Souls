@@ -41,3 +41,5 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define MAX_RECV_DATA_SIZE 1024

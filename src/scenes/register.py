@@ -26,8 +26,8 @@ pygame.init()
 fpsClock = pygame.time.Clock()
 
 class Register_Scene(Scene):
-    def __init__(self, screen, settings: dict, db, db_config: dict, bg: str | tuple = None) -> None:
-        super().__init__(screen, settings)
+    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str | tuple = None) -> None:
+        super().__init__(screen, settings, client)
         self.__DB = db
         self.__DB_CONFIG = db_config
 
@@ -109,13 +109,14 @@ class Register_Scene(Scene):
             else:
                 self.screen.fill((0, 0, 0))
             for event in pygame.event.get():
+                self.event = event
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                     self.run = False
             
             for object in self.objects:
-                    object.process(event)
+                object.process(self.event)
                 
 
             pygame.display.flip()

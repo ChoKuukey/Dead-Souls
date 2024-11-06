@@ -46,7 +46,7 @@ class TextInput(Widget):
 
     def process(self, event) -> None:
         self.surface.fill(self.bg_color)
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event is not None and event.type == pygame.MOUSEBUTTONDOWN:
             # Если пользователь нажал на инпут бокс
             if self.rect.collidepoint(event.pos):
                 if not self.active:
@@ -54,7 +54,7 @@ class TextInput(Widget):
                     self.active = True
             else:
                 self.active = False
-        if event.type == pygame.KEYDOWN and self.active:
+        if event is not None and event.type == pygame.KEYDOWN and self.active:
             
             if event.key == pygame.K_RETURN:
                 time.sleep(0.125)
@@ -63,7 +63,7 @@ class TextInput(Widget):
                 time.sleep(0.125)
                 self.text = self.text[:-1]
                 self.textvariable = self.textvariable[:-1]
-        if event.type == pygame.TEXTINPUT and self.active and len(self.textvariable) < self.length:
+        if event is not None and event.type == pygame.TEXTINPUT and self.active and len(self.textvariable) < self.length:
             # Флаг пароля
             if self.passt:
                 self.textvariable += event.text
@@ -93,7 +93,7 @@ class ImageTextInput(TextInput):
         self.scaledimage = pygame.transform.scale(self.image, (width, height))
 
     def process(self, event) -> None:
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event is not None and event.type == pygame.MOUSEBUTTONDOWN:
             # Если пользователь нажал на инпут бокс
             if self.rect.collidepoint(event.pos):
                 if not self.active:
@@ -101,12 +101,12 @@ class ImageTextInput(TextInput):
                     self.active = True
             else:
                 self.active = False
-        if event.type == pygame.KEYDOWN and self.active:  
+        if event is not None and event.type == pygame.KEYDOWN and self.active:  
             if event.key == pygame.K_BACKSPACE:
                 time.sleep(0.125)
                 self.text = self.text[:-1]
                 self.textvariable = self.textvariable[:-1]
-        if event.type == pygame.TEXTINPUT and self.active and len(self.textvariable) < self.length:
+        if event is not None and event.type == pygame.TEXTINPUT and self.active and len(self.textvariable) < self.length:
             # Флаг пароля
             if self.passt:
                 self.textvariable += event.text

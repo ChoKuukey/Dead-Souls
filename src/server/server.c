@@ -92,22 +92,27 @@ int main(void) {
                     printf(">> New connection from %s\n", address_buffer);
                 } else {
                     // Проверка на то, был ли пользователь отключен от сервера
-                    SOCKET client_socket = i;
-                    struct sockaddr_storage client_address;
-                    socklen_t client_len = sizeof(client_address);
-                    char address_buffer[100];
-                    getnameinfo((struct sockaddr*)&client_address,
-                                client_len,
-                                address_buffer, sizeof(address_buffer), 0, 0,
-                                NI_NUMERICHOST);
+                    // SOCKET client_socket = i;
+                    // struct sockaddr_storage client_address;
+                    // socklen_t client_len = sizeof(client_address);
+                    // char address_buffer[100];
+                    // getnameinfo((struct sockaddr*)&client_address,
+                    //             client_len,
+                    //             address_buffer, sizeof(address_buffer), 0, 0,
+                    //             NI_NUMERICHOST);
 
-                    char buffer[100];
-                    int bytes_received = recv(client_socket, buffer, 100, 0);
+                    char buffer[MAX_RECV_DATA_SIZE];
+                    int bytes_received = recv(i, buffer, MAX_RECV_DATA_SIZE, 0);
                     if (bytes_received == 0) {
-                        printf(">> Client %s disconnected.\n", address_buffer);
-                        CLOSESOCKET(client_socket);
-                        FD_CLR(client_socket, &master);
+                        printf(">> Client %d disconnected.\n", i);
+                        FD_CLR(i, &master);
+                        CLOSESOCKET(i);
+                        continue;
                     }
+
+                    printf(">> Client %d send: %s\n", i, buffer);
+
+                    
                 } // (i == socket_listen)
             } //if FD_ISSET
         } //for i to max_socket
