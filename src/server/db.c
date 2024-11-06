@@ -29,13 +29,14 @@ void connect_to_db(void) {
 
 
     #if defined(_WIN32) || defined(_WIN64)
-    db_config = get_db_config("../data/db/db_config.yaml");
+    db_config = get_yaml_config("../data/db/db_config.yaml");
     #endif
-    db_config = get_db_config("../data/db/linux_db_config.yaml");
+    db_config = get_yaml_config("../data/db/linux_db_config.yaml");
 
-    for (int i = 0; i < 6; ++i) {
-        printf(">> db_config[%d]: %s\n", i, db_config[i]);
-    }
+    // for (int i = 0; i < 6; ++i) {
+    //     printf(">> db_config[%d]: %s\n", i, db_config[i]);
+    // }
+    
     char conninfo[CONN_INFO_SIZE];   // строка конфига подключения
 
     #if defined(_WIN32) || defined(_WIN64)

@@ -1,9 +1,25 @@
 #include "common.h"
 #include <ctype.h>
+#include <stdint.h>
 #include "db.h"
+#include "data_func.h"
 
 
 int main(void) {
+    char** server_config = get_yaml_config("../src/server/server.yaml");
+    char* server_address = (char*)malloc(strlen("127.0.0.1"));
+
+    if (server_address == NULL) {
+        fprintf(stderr, ">> Error to allocate memory for server address\n");
+        exit(1);
+    }
+
+    strncpy(server_address, server_config[0], strlen("127.0.0.1"));
+
+    for (int i = 0; i < 2; ++i) {
+        printf(">> server_config[%d]: %s\n", i, server_config[i]);
+    }
+
     connect_to_db();
     
     #if defined(_WIN32) || defined(_WIN64)
@@ -20,10 +36,28 @@ int main(void) {
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE; // Режим прослушивания
+    hints.ai_flags = AI_NUMERICHOST | AI_PASSIVE | AI_NUMERICSERV; // Режим прослушивания
 
     struct addrinfo *bind_address;
-    getaddrinfo(0, "8080", &hints, &bind_address);
+    int result = getaddrinfo(server_address, server_config[1], &hints, &bind_address);
+
+    if (result != 0) {
+        fprintf(stderr, ">> getaddrinfo() failed. (%d)\n", result);
+        if (result == EAI_NONAME) {
+            fprintf(stderr, ">> Hostname or service name not found.\n");
+        } else {
+            fprintf(stderr, ">> Unknown error.\n");
+        }
+        exit(1);
+    }
+
+    // Вывод адреса сервера
+    char server_ip_address[INET_ADDRSTRLEN];
+    char server_port[INET_ADDRSTRLEN];
+    struct sockaddr_in *addr_in = (struct sockaddr_in*) bind_address->ai_addr;
+    inet_ntop(AF_INET, &(addr_in->sin_addr), server_ip_address, INET_ADDRSTRLEN);
+    // htons - преобразует 16-битное целое число из хостового порядка байтов в сетевой порядок байтов.
+    printf(">> server address: %s:%d\n", server_ip_address, ntohs(addr_in->sin_port));
 
     // Слушащий сокет
     printf(">> Creating socket...\n");

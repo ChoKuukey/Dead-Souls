@@ -4,11 +4,11 @@
 #include <ctype.h>
 
 
-static char* read_file(const char* filename) {
+char* read_file(const char* filename) {
     FILE* file = fopen(filename, "r");
 
     if (file == NULL) {
-        fprintf(stderr, ">> failed to open file db_config.yaml\n");
+        fprintf(stderr, ">> failed to open file %s\n", filename);
         exit(1);
     }
 
@@ -34,7 +34,7 @@ static char* read_file(const char* filename) {
     return buffer;
 }
 
-static void parse_yaml(char* yaml_string, char** config, int* count) {
+void parse_yaml(char* yaml_string, char** config, int* count) {
     if (config == NULL || count == NULL) {
         fprintf(stderr, ">> Invalid arguments in parse_yaml\n");
         exit(1);
@@ -71,7 +71,7 @@ static void parse_yaml(char* yaml_string, char** config, int* count) {
     }
 }
 
-char** get_db_config(const char* src) {
+char** get_yaml_config(const char* src) {
     char* yaml_string = read_file(src);
 
     if (!yaml_string) {

@@ -3,6 +3,6 @@
 #endif
 
 
-char** get_db_config(const char* src);
-static void parse_yaml(char* yaml_string, char** values, int* count);
-static char* read_file(const char* filename);
+char** get_yaml_config(const char* src);
+void parse_yaml(char* yaml_string, char** values, int* count);
+char* read_file(const char* filename);
