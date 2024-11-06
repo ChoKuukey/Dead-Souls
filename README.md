@@ -24,7 +24,7 @@
 1. sudo service postgresql start
 2. sudo service postgresql status
 3. sudo -u __*your_psql_user*__ psql
-\c __*your_psql_database*__ 
+4. \c __*your_psql_database*__ 
 + Настроить src/server/server.yaml со своими значениями
 + Запустить серве: __*./linux_server*__
 + Запустить игру
