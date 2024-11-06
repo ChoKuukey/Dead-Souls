@@ -1,9 +1,30 @@
-<<<<<<< HEAD
-# Dead-Souls
-
-***НЕ ИСПОЛЬЗОВАТЬ МОДУЛЬ python "db"***
-=======
-# Dead-Souls #
+# Dead-Souls 
 
 *** Не использовать Python модуль "db". Не актуальный и не используется. Использовался для временной заглушки. ***
->>>>>>> d9bfff7facc8ca679dfd2a8d7ae1454eaaa71767
+
+
+
+
+## ***__ИСПОЛЬЗОВАНИЕ__***
+
+### Windows
++ Зайти в bin 
++ Собрать сервер через make: __*make win*__
++ Настроить data/db/db_config.yaml со своими данными
++ Запустить Posqtgresql/PgAdmin
++ Настроить src/server/server.yaml со своими значениями
++ Запустить серве: __*./server.exe*__
++ Запустить игру
+
+### Unix
++ Зайти в bin
++ Собрать сервер через make: __*make linux*__
++ Настроить data/db/linux_db_config.yaml со своими данными
++ Запустить Posqtgresql: 
+sudo service postgresql start
+sudo service postgresql status
+sudo -u __*your_psql_user*__ psql
+\c __*your_psql_database*__ 
++ Настроить src/server/server.yaml со своими значениями
++ Запустить серве: __*./linux_server*__
++ Запустить игру
