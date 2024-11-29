@@ -5,7 +5,7 @@
 #if defined(_WIN32) || defined(_WIN64)
 
 #ifndef _WIN32_WININT
-#define _WIN32_WININT 0x0600
+#define _WIN32_WINNT 0x0600
 #endif
 
 #include <winsock2.h>

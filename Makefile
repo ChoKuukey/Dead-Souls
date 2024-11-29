@@ -1,7 +1,8 @@
 SRC = src/server/server.c src/server/data_func.c src/server/db.c
 TARGET_WIN = bin/server.exe
 TARGET_LINUX = bin/linux_server
-LIBPQ_LINK = D:\PostgreSQL\16\lib
+LIBPQ_LINK = C:/"Program Files"/PostgreSQL/16/lib
+# LIBPQ_LINK = D:/PostgreSQL/16/lib
 
 .PHONY: all win linux
 

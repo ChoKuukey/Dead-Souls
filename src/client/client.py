@@ -70,7 +70,11 @@ class Client:
         account_enter_flag = flags["account_enter"]
 
         query_string = f"{email} {password} {account_enter_flag}"
-        send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        try:
+            send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        except socket.error as e:
+            print(f">> Failed to send data to server. ({e})")
+            return 
 
         if send_data:
             print(f">> Sent: {query_string} to server to autorization operation, size sent data: {send_data}")

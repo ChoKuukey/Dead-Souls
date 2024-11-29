@@ -6,7 +6,7 @@
 
 
 int main(void) {
-    char** server_config = get_yaml_config("../src/server/server.yaml");
+    char** server_config = get_yaml_config("../src/server/server.yaml", 2);
     char* server_address = (char*)malloc(strlen("127.0.0.1"));
 
     if (server_address == NULL) {
