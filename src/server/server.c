@@ -1,20 +1,30 @@
 #include "common.h"
 #include <ctype.h>
 #include <stdint.h>
+#include <locale.h>
 #include "db.h"
 #include "data_func.h"
 
 
 int main(void) {
+    // Set the locale to UTF-8
+    setlocale(LC_ALL, "en_US.UTF-8");
+
     char** server_config = get_yaml_config("../src/server/server.yaml", 2);
-    char* server_address = (char*)malloc(strlen("127.0.0.1"));
+    char* server_address = (char*)malloc(strlen("127.0.0.1") + 1);
+    printf(">> Allocating memory for server address = %d\n", sizeof(server_address));
+    printf(">> server length: %d\n", strlen(server_config[0]));
+    printf(">> server might be: %d\n", strlen("127.0.0.1"));
 
     if (server_address == NULL) {
         fprintf(stderr, ">> Error to allocate memory for server address\n");
         exit(1);
     }
+    // strcpy(server_address, server_config[0]);
+    strncpy(server_address, server_config[0], (strlen("127.0.0.1")));
+    server_address[strlen(server_config[0])-1] = '\0';
 
-    strncpy(server_address, server_config[0], strlen("127.0.0.1"));
+    printf(">> Server address: %s lenght = %d\n", server_address, strlen(server_address));
 
     for (int i = 0; i < 2; ++i) {
         printf(">> server_config[%d]: %s\n", i, server_config[i]);
@@ -99,19 +109,15 @@ int main(void) {
         }
 
         SOCKET i;
-        for(i = 1; i <= max_socket; ++i) {
+        for(SOCKET i = 1; i <= max_socket; ++i) {
             if (FD_ISSET(i, &reads)) {
-
                 if (i == socket_listen) {
                     struct sockaddr_storage client_address;
                     socklen_t client_len = sizeof(client_address);
-                    SOCKET socket_client = accept(socket_listen,
-                            (struct sockaddr*) &client_address,
-                            &client_len);
+                    SOCKET socket_client = accept(socket_listen, (struct sockaddr*)&client_address, &client_len);
                     if (!ISVALIDSOCKET(socket_client)) {
-                        fprintf(stderr, ">> accept() failed. (%d)\n",
-                                GETSOCKETERRNO());
-                        return 1;
+                        fprintf(stderr, ">> accept() failed. (%d)\n", GETSOCKETERRNO());
+                        continue;
                     }
 
                     FD_SET(socket_client, &master);
@@ -119,37 +125,30 @@ int main(void) {
                         max_socket = socket_client;
 
                     char address_buffer[100];
-                    getnameinfo((struct sockaddr*)&client_address,
-                            client_len,
-                            address_buffer, sizeof(address_buffer), 0, 0,
-                            NI_NUMERICHOST);
+                    getnameinfo((struct sockaddr*)&client_address, client_len, address_buffer, sizeof(address_buffer), 0, 0, NI_NUMERICHOST);
                     printf(">> New connection from %s\n", address_buffer);
                 } else {
-                    // Проверка на то, был ли пользователь отключен от сервера
-                    // SOCKET client_socket = i;
-                    // struct sockaddr_storage client_address;
-                    // socklen_t client_len = sizeof(client_address);
-                    // char address_buffer[100];
-                    // getnameinfo((struct sockaddr*)&client_address,
-                    //             client_len,
-                    //             address_buffer, sizeof(address_buffer), 0, 0,
-                    //             NI_NUMERICHOST);
+                    struct sockaddr_storage client_address;
+                    SOCKET client_socket = i;
+                    socklen_t client_len = sizeof(client_address);
+                    getpeername(client_socket, (struct sockaddr*)&client_address, &client_len);
+                    char address_buffer[INET_ADDRSTRLEN];
+                    getnameinfo((struct sockaddr*)&client_address, client_len, address_buffer, sizeof(address_buffer), 0, 0, NI_NUMERICHOST);
 
                     char buffer[MAX_RECV_DATA_SIZE];
-                    int bytes_received = recv(i, buffer, MAX_RECV_DATA_SIZE, 0);
-                    if (bytes_received == 0) {
-                        printf(">> Client %d disconnected.\n", i);
-                        FD_CLR(i, &master);
-                        CLOSESOCKET(i);
+                    int bytes_received = recv(client_socket, buffer, MAX_RECV_DATA_SIZE, 0);
+                    if (bytes_received <= 0) {
+                        printf(">> Client %s disconnected.\n", address_buffer);
+                        FD_CLR(client_socket, &master);
+                        CLOSESOCKET(client_socket);
                         continue;
                     }
 
-                    printf(">> Client %d send: %s\n", i, buffer);
-
+                    printf(">> Client %s Received: %s\n", address_buffer, buffer);
                     
-                } // (i == socket_listen)
-            } //if FD_ISSET
-        } //for i to max_socket
+                } // else if (i == socket_listen) {
+            } // if (FD_ISSET(i, &reads)) {
+        } // for(SOCKET i = 1; i <= max_socket; ++i) {
     } // while(1)
 
     printf(">> Closing listening socket...\n");
@@ -159,9 +158,11 @@ int main(void) {
     WSACleanup();
     #endif
 
+    free(server_address);
 
     printf(">> Finished.\n");
 
     return 0;
 }   
+
 

@@ -64,12 +64,12 @@ void connect_to_db(void) {
     char create_users_table[MAX_SQL_QUERY_LENGTH];
     snprintf(create_users_table, MAX_SQL_QUERY_LENGTH, "CREATE TABLE IF NOT EXISTS %s ( \
         id SERIAL PRIMARY KEY, \
-        email VARCHAR(255), \
-        name VARCHAR(255), \
-        password_digest VARCHAR(255), \
-        is_dev boolean, \
+        email VARCHAR(255) NOT NULL UNIQUE, \
+        name VARCHAR(255) NOT NULL, \
+        password_digest VARCHAR(255) NOT NULL, \
+        is_dev boolean NOT NULL DEFAULT FALSE, \
         create_at timestamp without time zone, \
-        is_active boolean);", db_config[4]);
+        is_active boolean NOT NULL DEFAULT FALSE);", db_config[4]);
 
     PGresult *users_res = PQexecParams(conn, create_users_table, 0, NULL, NULL, NULL, NULL, 0);
 
@@ -84,21 +84,32 @@ void connect_to_db(void) {
     printf(">> Successfully created table \"%s\" or have been already created %s\n", db_config[4], db_config[4]);
     puts("\n");
 
+
+    // Создание расширения uuid-ossp, для генерации уникальных идентификаторов
+    char create_uuid_ossp_extension_on_table_sessions[MAX_SQL_QUERY_LENGTH];
+    snprintf(create_uuid_ossp_extension_on_table_sessions, MAX_SQL_QUERY_LENGTH, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";");
+    PGresult *uuid_res = PQexecParams(conn, create_uuid_ossp_extension_on_table_sessions, 0, NULL, NULL, NULL, NULL, 0);
+    // Проверка выполнения запроса
+    if (PQresultStatus(uuid_res) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "Query failed:%s\n", PQerrorMessage(conn));
+        PQclear(uuid_res);
+        exit_nicely(conn);
+        exit(1);
+    }
+
     // Создание таблицы sessions, если её нет
     char create_sessions_table[MAX_SQL_QUERY_LENGTH];
-    snprintf(create_sessions_table, MAX_SQL_QUERY_LENGTH, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"; \
-        CREATE TABLE IF NOT EXISTS %s ( \
+    snprintf(create_sessions_table, MAX_SQL_QUERY_LENGTH, "CREATE TABLE IF NOT EXISTS %s ( \
         id SERIAL PRIMARY KEY, \
         user_id INTEGER NOT NULL, \
         session_id UUID NOT NULL DEFAULT uuid_generate_v4(), \
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \
         online BOOLEAN NOT NULL DEFAULT FALSE, \
-        CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES %s(id) \
-        ); \
-        CREATE INDEX IF NOT EXISTS idx_session_id ON sessions (session_id); \
-        CREATE INDEX IF NOT EXISTS idx_user_id ON sessions (user_id);", db_config[5], db_config[5]);
-
+        CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES %s(id) ON DELETE CASCADE);", db_config[5], db_config[4]);
+    // CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id));", db_config[5], db_config[4]);
+    // Это определяет внешний ключ для столбца user_id, который ссылается на столбец id в таблице users.
+    // Это обеспечивает целостность данных, гарантируя, что каждый user_id в текущей таблице соответствует существующему id в таблице users.
     PGresult *session_res = PQexecParams(conn, create_sessions_table, 0, NULL, NULL, NULL, NULL, 0);
 
     // Проверка выполнения запроса
@@ -112,6 +123,29 @@ void connect_to_db(void) {
     printf(">> Successfully created table \"%s\" or have been already created %s\n", db_config[5], db_config[5]);
     puts("\n");
 
+    // Создание индекса idx_session_id на session_id в таблице sessions, если его нет
+    char create_index_session_id_on_sessions[MAX_SQL_QUERY_LENGTH];
+    snprintf(create_index_session_id_on_sessions, MAX_SQL_QUERY_LENGTH, "CREATE INDEX IF NOT EXISTS idx_session_id ON sessions (session_id);");
+    PGresult *index_session_id_res = PQexecParams(conn, create_index_session_id_on_sessions, 0, NULL, NULL, NULL, NULL, 0);
+    // Проверка выполнения запроса
+    if (PQresultStatus(index_session_id_res)!= PGRES_COMMAND_OK) {
+        fprintf(stderr, "Query failed:%s\n", PQerrorMessage(conn));
+        PQclear(index_session_id_res);
+        exit_nicely(conn);
+        exit(1);
+    }
+
+    // Создание индекса idx_user_id на user_id в таблице sessions, если его нет
+    char create_index_user_id_on_sessions[MAX_SQL_QUERY_LENGTH];
+    snprintf(create_index_user_id_on_sessions, MAX_SQL_QUERY_LENGTH, "CREATE INDEX IF NOT EXISTS idx_user_id ON sessions (user_id);");
+    PGresult *index_user_id_res = PQexecParams(conn, create_index_user_id_on_sessions, 0, NULL, NULL, NULL, NULL, 0);
+    // Проверка выполнения запроса
+    if (PQresultStatus(index_user_id_res)!= PGRES_COMMAND_OK) {
+        fprintf(stderr, "Query failed:%s\n", PQerrorMessage(conn));
+        PQclear(index_user_id_res);
+        exit_nicely(conn);
+        exit(1);
+    }
 
     for (int i = 0; i < 6; ++i) {
         free(db_config[i]);

@@ -81,3 +81,9 @@ class Client:
         else:
             print(">> No data sent.")
             return
+    
+    def account_registration(self, email: str, name: str, password: str, error_label: Label) -> None:
+        """ Метод для регистрации пользователя """
+        flags = parse_yaml_config("../src/server/flags.yaml")
+        
+
