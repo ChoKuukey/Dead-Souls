@@ -30,7 +30,6 @@ class SignInScene(Scene):
         self.__DB_CONFIG = db_config
 
         self.objects = []
-        self.connection = Connection(self.__DB, self.__DB_CONFIG)
 
         self.bg = None
         self.scaledimage = None
@@ -66,48 +65,6 @@ class SignInScene(Scene):
             password_input.text = "*" * len(password_input.textvariable)
             # password_input.process(None)
 
-    def account_enter(self, email: str, password: str, error_label: Label) -> None:
-        self.connection.connect()
-        self.db = self.connection.db
-        self.cursor = self.connection.cursor
-
-        user = None
-
-        try:    
-            self.cursor.execute(f"SELECT * FROM {self.__DB_CONFIG['table']} WHERE email = %s", (email,))
-            user = self.cursor.fetchone()
-            if user is None:
-                error_label.set_text("Пользователь не найден")
-                self.connection.close(self.__DB, self.cursor)
-                return
-            if user[6] is False:
-                error_label.set_text("Пользователь не найден")
-                self.connection.close(self.__DB, self.cursor)
-                return
-        except psycopg2.OperationalError:
-            error_label.set_text(">> Не удалось подключиться к базе данных")
-            self.connection.close(self.__DB, self.cursor)
-            return
-        
-        try:
-            self.cursor.execute(f"SELECT * FROM {self.__DB_CONFIG['table']} WHERE email = %s AND password_digest = %s", (email, password))
-            if self.cursor.fetchone() is None:
-                error_label.set_text("Неправильный пароль")
-                self.connection.close(self.__DB, self.cursor)
-                return
-        except psycopg2.OperationalError:
-            error_label.set_text(">> Не удалось подключиться к базе данных")
-            self.connection.close(self.__DB, self.cursor)
-            return
-
-        error_label.set_text("Успешно")
-
-        main_game = MainGameScene(self.screen, self.settings, self.client, self.db, self.__DB_CONFIG, bg = "../src/imgs/main_bg.png")
-        main_game.main()
-
-        self.connection.close(self.__DB, self.cursor)
-            
-
     def main(self) -> None:
         print(">> Запуск Запуск сцены авторизации")
         """ Главная функция """
@@ -124,7 +81,9 @@ class SignInScene(Scene):
         self.objects.append(passwrod_input)
         self.objects.append(error_label)
         self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 510, 400, 80, 'Подтвердить', 50, (255, 255, 255), 
-                                        function = lambda: self.client.account_enter(email_input.textvariable, passwrod_input.textvariable, error_label),
+                                        function = lambda: self.client.account_enter(email_input.textvariable, 
+                                                                                     passwrod_input.textvariable, 
+                                                                                     error_label),
                                         imagePath="../src/imgs/btn.png"))
         self.objects.append(CheckBox(self.screen, (self.screen.get_width() / 2 + 200), 380, 50, 50, function = lambda: self.change_pass_vision(passwrod_input)))
         self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 610, 190, 70, 'Назад', 45, (255, 255, 255), self.__back, imagePath="../src/imgs/btn.png"))

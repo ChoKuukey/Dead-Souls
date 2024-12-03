@@ -32,8 +32,6 @@ class Register_Scene(Scene):
         self.__DB_CONFIG = db_config
 
         self.objects = []
-        self.connetion = Connection(self.__DB, self.__DB_CONFIG)
-        self.registration = Registration(self.connetion)
 
         self.bg = None
         self.scaledimage = None
@@ -89,14 +87,10 @@ class Register_Scene(Scene):
         self.objects.append(passwrod_input)
         self.objects.append(error_label)
         self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 510, 400, 80, 'Подтвердить', 50, (255, 255, 255), 
-                                        function = lambda: self.registration.register(self.screen, 
-                                                                                      MainGameScene, 
-                                                                                      self.settings,
-                                                                                      self.__DB_CONFIG, 
-                                                                                      email_input.textvariable, 
-                                                                                      user_name_input.textvariable, 
-                                                                                      passwrod_input.textvariable, 
-                                                                                      error_label), 
+                                        function = lambda: self.client.account_registration(email_input.textvariable, 
+                                                                                            user_name_input.textvariable, 
+                                                                                            passwrod_input.textvariable,
+                                                                                            error_label), 
                                         imagePath="../src/imgs/btn.png"))
         self.objects.append(CheckBox(self.screen, (self.screen.get_width() / 2 + 200), 380, 50, 50, function = lambda: self.change_pass_vision(passwrod_input)))
         self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 610, 190, 70, 'Назад', 45, (255, 255, 255), self.__back, imagePath="../src/imgs/btn.png"))

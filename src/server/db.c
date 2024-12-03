@@ -1,16 +1,8 @@
-#if defined(_WIN32) || defined(_WIN64)
-// #include "D:\PostgreSQL\16\include\libpq-fe.h"
-#include "C:/Program Files/PostgreSQL/16/include/libpq-fe.h"
-#else
-#include "/usr/include/postgresql/libpq-fe.h"
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
 #include "data_func.h"
+#include "db.h"
 
-#define CONN_INFO_SIZE 256
-#define MAX_SQL_QUERY_LENGTH 1024
+PGconn *conn;
+
 
 
 static void print_libpq_version() {
@@ -23,15 +15,19 @@ static void exit_nicely(PGconn *conn) {
     PQfinish(conn);
 }
 
-void connect_to_db(void) {
-    print_libpq_version();
-
+char** get_db_config(void) {
     char** db_config;
-
     #if defined(_WIN32) || defined(_WIN64)
     db_config = get_yaml_config("../data/db/db_config.yaml", 6);
     #endif
     db_config = get_yaml_config("../data/db/linux_db_config.yaml", 6);
+    return db_config;
+}
+
+void connect_to_db(void) {
+    print_libpq_version();
+
+    char** db_config = get_db_config();
 
     // for (int i = 0; i < 6; ++i) {
     //     printf(">> db_config[%d]: %s\n", i, db_config[i]);
@@ -47,8 +43,7 @@ void connect_to_db(void) {
     // printf(">> conninfo: %s\n", conninfo);
 
     // Подключение к БД
-    PGconn *conn = PQconnectdb(conninfo);
-    
+    conn = PQconnectdb(conninfo);
 
     // Проверка подключения
     if (PQstatus(conn) != CONNECTION_OK) {
@@ -69,6 +64,7 @@ void connect_to_db(void) {
         password_digest VARCHAR(255) NOT NULL, \
         is_dev boolean NOT NULL DEFAULT FALSE, \
         create_at timestamp without time zone, \
+        updated_at timestamp without time zone, \
         is_active boolean NOT NULL DEFAULT FALSE);", db_config[4]);
 
     PGresult *users_res = PQexecParams(conn, create_users_table, 0, NULL, NULL, NULL, NULL, 0);
@@ -156,10 +152,37 @@ void connect_to_db(void) {
     // const char* conninfo = "host=localhost port=5432 dbname=postgres user=postgres password=12345";
 }
 
+int account_signin(char** data_string) {
+    char** db_config = get_db_config();
 
-                                                                   
-                                   
-                                            
+    if (conn == NULL || data_string == NULL) {
+        fprintf(stderr, ">> Invalid arguments in account_signin\n");
+        exit(1);
+    }
 
-                                    
-                                    
+    const char* email = data_string[0];
+    const char* password = data_string[1];
+
+    char query[MAX_SQL_QUERY_LENGTH];
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT * FROM %s WHERE email = '%s' AND password_digest = '%s';", db_config[4], data_string[0], data_string[1]);
+
+    
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        return QUERY_ERROR;
+    }
+
+    int rows = PQntuples(res);
+    PQclear(res);
+
+    if (rows > 0) {
+        printf(">> User %s successfully signed in\n", email);
+        return QUERY_SUCCESS;
+    } else {
+        printf(">> User %s not found\n", email);
+        return QUERY_EXCEPTION;
+    }
+}

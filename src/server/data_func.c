@@ -97,3 +97,63 @@ char** get_yaml_config(const char* src, int elements) {
     
     return config;
 }
+
+char** parse_data_string(const char* data_string) {
+    if (data_string == NULL) {
+        fprintf(stderr, ">> parse_data_string is NULL\n");
+        exit(1);
+    }
+
+    char* query_copy = strdup(data_string);
+    if (query_copy == NULL) {
+        fprintf(stderr, ">> Not enough memory to duplicate the string.\n");
+        exit(1);
+
+    }
+
+    char* token = strtok(query_copy, " \n"); // создаем копию строки, чтобы strtok не модифицировал исходную строку
+
+    int count = 0;
+    while (token != NULL) {
+        count++;
+        token = strtok(NULL, " \n");
+    }
+
+    if (count == 0) {
+        fprintf(stderr, ">> No tokens found in the query string.\n");
+        free(query_copy);
+        exit(1);
+    }
+
+    printf(">> Count: %d\n", count);
+
+    char** tokens = (char**)malloc((count + 1) * sizeof(char*));
+    if (tokens == NULL) {
+        fprintf(stderr, ">> Not enough memory to allocate tokens array.\n");
+        free(query_copy);
+        exit(1);
+    }
+
+    strcpy(query_copy, data_string);    // Восстановить исходную строку для токенизации
+    int index = 0;
+    token = strtok(query_copy, " \n");
+    while (token != NULL) {
+        tokens[index] = strdup(token);
+        if (tokens[index] == NULL) {
+            fprintf(stderr, ">> Not enough memory to duplicate token.\n");
+            // Освобождаем ранее выделенную память
+            for (int i = 0; i < index; i++) {
+                free(tokens[i]);
+            }
+            free(tokens);
+            free(query_copy);
+            exit(1);
+        }
+        index++;
+        token = strtok(NULL, " \n");
+    }
+    tokens[index] = NULL; // Добавляем NULL-терминатор в конце массива
+
+    free(query_copy);
+    return tokens;
+}

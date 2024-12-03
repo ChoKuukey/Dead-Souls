@@ -12,9 +12,9 @@ int main(void) {
 
     char** server_config = get_yaml_config("../src/server/server.yaml", 2);
     char* server_address = (char*)malloc(strlen("127.0.0.1") + 1);
-    printf(">> Allocating memory for server address = %d\n", sizeof(server_address));
-    printf(">> server length: %d\n", strlen(server_config[0]));
-    printf(">> server might be: %d\n", strlen("127.0.0.1"));
+    // printf(">> Allocating memory for server address = %d\n", sizeof(server_address));
+    // printf(">> server length: %d\n", strlen(server_config[0]));
+    // printf(">> server might be: %d\n", strlen("127.0.0.1"));
 
     if (server_address == NULL) {
         fprintf(stderr, ">> Error to allocate memory for server address\n");
@@ -24,7 +24,7 @@ int main(void) {
     strncpy(server_address, server_config[0], (strlen("127.0.0.1")));
     server_address[strlen(server_config[0])-1] = '\0';
 
-    printf(">> Server address: %s lenght = %d\n", server_address, strlen(server_address));
+    // printf(">> Server address: %s lenght = %d\n", server_address, strlen(server_address));
 
     for (int i = 0; i < 2; ++i) {
         printf(">> server_config[%d]: %s\n", i, server_config[i]);
@@ -144,7 +144,46 @@ int main(void) {
                         continue;
                     }
 
+                    buffer[bytes_received] = '\0';
+
                     printf(">> Client %s Received: %s\n", address_buffer, buffer);
+
+                    // Парсим данные из запроса
+                    char** data = parse_data_string(buffer);
+                    uint8_t data_count = 0; // Счетчик токенов
+                    for (int i = 0; data[i] != NULL; i++) {
+                        printf(">> Token %d: %s\n", i, data[i]);
+                        data_count++;
+                    }
+
+                    printf(">> Data count: %d\n", data_count);
+
+                    int result;
+                    char result_buffer[MAX_RESULT_LENGTH + 1];
+
+                    if (atoi(data[data_count - 1]) == ACCOUNT_REGISTRATION) {
+                        result = 2;
+                    } else if (atoi(data[data_count - 1]) == ACCOUNT_SIGNIN) {
+                        result = account_signin(data);
+                    }
+
+                    if (result == QUERY_ERROR) {
+                        fprintf(stderr, ">> Failed to send data to database: 'NULL RESULT'\n");
+                        continue;
+                    }
+
+                    snprintf(result_buffer, MAX_RESULT_LENGTH, "%d", result);
+                    result_buffer[MAX_RESULT_LENGTH] = '\0';
+                    if (result_buffer == NULL) {
+                        fprintf(stderr, ">> Failed to allocate memory for result buffer\n");
+                        continue;
+                    };
+
+                    if (send(client_socket, result_buffer, strlen(result_buffer), 0) == -1) {
+                        fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                    } else {
+                        printf(">> Data sent to client %s\n", result_buffer);
+                    }
                     
                 } // else if (i == socket_listen) {
             } // if (FD_ISSET(i, &reads)) {

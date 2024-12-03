@@ -49,7 +49,7 @@ class Client:
             print(">> Waiting for data...")
             data = self.socket_peer.recv(1024)
             if data:
-                print(f">> Received: {data.decode()}")
+                print(f">> Received: {data.decode('utf-8')}")
             else:
                 print(">> No data received.")
                 return
@@ -77,7 +77,7 @@ class Client:
             return 
 
         if send_data:
-            print(f">> Sent: {query_string} to server to autorization operation, size sent data: {send_data}")
+            print(f">> Sent: '{query_string}' to server to autorization operation, size sent data: {send_data}")
         else:
             print(">> No data sent.")
             return
@@ -85,5 +85,18 @@ class Client:
     def account_registration(self, email: str, name: str, password: str, error_label: Label) -> None:
         """ Метод для регистрации пользователя """
         flags = parse_yaml_config("../src/server/flags.yaml")
-        
+        account_enter_flag = flags['account_register']
+
+        query_string = f"{email} {name} {password} {account_enter_flag}"
+        try:
+            send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        except socket.error as e:
+            print(f">> Failed to send data to server. ({e})")
+            return 
+
+        if send_data:
+            print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
+        else:
+            print(">> No data sent.")
+            return
 
