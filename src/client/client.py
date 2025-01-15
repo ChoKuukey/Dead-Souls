@@ -111,10 +111,14 @@ class Client:
     
     def account_registration(self, email: str, name: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list) -> None:
         """ Метод для регистрации пользователя """
-        response_flags = parse_yaml_config("flags.yaml")
+        response_flags = parse_yaml_config("../src/client/flags.yaml")
         operation_flags = parse_yaml_config("../src/server/flags.yaml")
         account_enter_flag = operation_flags["account_register"]
         registration_flags = parse_yaml_config("../src/client/registration_flags.yaml")
+
+        if email == "" or name == "" or password == "":
+            error_label.set_text("Поля не могут быть пустыми")
+            return
 
         confirm_code = None
 
@@ -155,11 +159,11 @@ class Client:
             elif int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
                 print(">> Регистрация прошла успешно")
                 
-                self.socket_peer.send(operation_flags["QUERY_CONFIRM_CODE"].encode("utf-8"))
+                self.socket_peer.send(str(operation_flags["query_confirm_code"]).encode("utf-8"))
 
                 signin_scene.run = False
                 confirm_code_scene = ConfirmCode_scene(screen=scene_params[0], settings=scene_params[1], 
-                                                       client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5], sent_code="123", email=scene_params[6])
+                                                       client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5], sent_code="123", email=email)
                 confirm_code_scene.main()
         else:
             print(">> No data sent.")

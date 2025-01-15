@@ -2,8 +2,8 @@
 #define BD_H
 #endif
 #if defined(_WIN32) || defined(_WIN64)
-// #include "D:\PostgreSQL\16\include\libpq-fe.h"
-#include "C:/Program Files/PostgreSQL/16/include/libpq-fe.h"
+#include "D:\PostgreSQL\16\include\libpq-fe.h"
+// #include "C:/Program Files/PostgreSQL/16/include/libpq-fe.h"
 #else
 #include "/usr/include/postgresql/libpq-fe.h"
 #endif
@@ -26,8 +26,8 @@ typedef enum {
 } QUERY_STATUS;
 
 typedef enum {
-    ACCOUNT_REGISTRATION = 0,
-    ACCOUNT_SIGNIN,
+    ACCOUNT_SIGNIN = 1,
+    ACCOUNT_REGISTRATION,
     CONFIRM_CODE //* Запрос на код подтверждения
 } QUERY_FLAGS;
 

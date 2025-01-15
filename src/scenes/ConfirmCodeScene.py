@@ -29,8 +29,8 @@ fpsClock = pygame.time.Clock()
 class ConfirmCode_scene(Scene):
     """ Модуль подтверждения кода """
 
-    def __init__(self, screen, settings: dict, db, db_config: dict, bg: str | tuple = None, sent_code: str = None, email: str = None) -> None:
-        super().__init__(screen, settings)
+    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str | tuple = None, sent_code: str = None, email: str = None) -> None:
+        super().__init__(screen, settings, client)
         self.__DB = db
         self.__DB_CONFIG = db_config
         self.__SENT_CODE = sent_code

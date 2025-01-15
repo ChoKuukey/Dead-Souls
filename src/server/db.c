@@ -2,6 +2,7 @@
 #include "db.h"
 
 #include <stdbool.h>
+#include <string.h>
 
 PGconn *conn;
 
@@ -224,13 +225,13 @@ int account_registration(char** data_string) {
 
     //* Проверка на совпадение имени
     snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT FROM %s WHERE name = %s;", db_config[4], data_string[2]);
-    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
         PQclear(res);
         return QUERY_ERROR;
     }
-    int rows = PQntuples(res);
+    rows = PQntuples(res);
     PQclear(res);
     if (rows > 0) {
         printf(">> Name %s is already used\n", email);
@@ -256,13 +257,13 @@ int account_registration(char** data_string) {
     int max_id;
 
     snprintf(query, MAX_RESULT_LENGTH, "SELECT MAX(id) FROM %s;", db_config[4]);
-    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
         PQclear(res);
         return QUERY_ERROR;
     }
-    int rows = PQntuples(res);
+    rows = PQntuples(res);
     if (rows == 0) {
         max_id = 0;
         PQclear(res);
@@ -274,7 +275,7 @@ int account_registration(char** data_string) {
 
     //* Если всё правильно, то регистрируем пользователя
     snprintf(query, MAX_RESULT_LENGTH, "INSERT INTO %s (id, email, name, password_digest, is_dev, created_at, updated_at, is_active) VALUES (%d, %s, %s, %s, false, now(), now(), false)");
-    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
 
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));

@@ -165,7 +165,7 @@ int main(void) {
                         result = account_registration(data);
                     } else if (atoi(data[data_count - 1]) == ACCOUNT_SIGNIN) {
                         result = account_signin(data);
-                    }
+                    } else if (atoi(data[data_count - 1]) == CONFIRM_CODE)
 
                     if (result == QUERY_ERROR) {
                         fprintf(stderr, ">> Failed to send data to database: 'NULL RESULT'\n");
