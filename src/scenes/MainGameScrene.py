@@ -4,7 +4,7 @@ import sys
 import time
 
 from scenes.scene import Scene
-from client.client import Client
+# from client.client import Client
 
 from widgets.button import (
     ImageButton
@@ -18,7 +18,7 @@ fpsClock = pygame.time.Clock()
 class MainGameScene(Scene):
     """ Модуль главного игрового экрана """
 
-    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str = None) -> None:
+    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str | tuple = None) -> None:
         super().__init__(screen, settings, client)
         self.__DB = db
         self.__DB_CONFIG = db_config

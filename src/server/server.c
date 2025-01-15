@@ -162,7 +162,7 @@ int main(void) {
                     char result_buffer[MAX_RESULT_LENGTH + 1];
 
                     if (atoi(data[data_count - 1]) == ACCOUNT_REGISTRATION) {
-                        result = 2;
+                        result = account_registration(data);
                     } else if (atoi(data[data_count - 1]) == ACCOUNT_SIGNIN) {
                         result = account_signin(data);
                     }

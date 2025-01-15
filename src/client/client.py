@@ -7,6 +7,10 @@ import sys
 
 from widgets.label import Label
 
+from scenes.MainGameScrene import MainGameScene
+from scenes.singin import SignInScene
+from scenes.ConfirmCodeScene import ConfirmCode_scene
+
 """ добавляет родительский каталог текущего скрипта в начало системного пути (sys.path). Это позволяет скрипту импортировать модули из родительского каталога. """
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
@@ -16,6 +20,7 @@ class Client:
     def __init__(self):
         self.run = True
         self.socket_peer = None
+        self.recv_data = None
 
     def connect_to_server(self, server, port):
         try:
@@ -47,9 +52,9 @@ class Client:
 
         while self.run:
             print(">> Waiting for data...")
-            data = self.socket_peer.recv(1024)
-            if data:
-                print(f">> Received: {data.decode('utf-8')}")
+            self.recv_data = self.socket_peer.recv(1024)
+            if self.recv_data:
+                print(f">> Received: {self.recv_data.decode('utf-8')}")
             else:
                 print(">> No data received.")
                 return
@@ -64,10 +69,11 @@ class Client:
     def close_connection_to_server(self):
         self.run = False
 
-    def account_enter(self, email: str, password: str, error_label: Label) -> None:
+    def account_enter(self, email: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list) -> None:
         """ Метод для авторизации пользователя """
-        flags = parse_yaml_config("../src/server/flags.yaml")
-        account_enter_flag = flags["account_enter"]
+        response_flags = parse_yaml_config("../src/client/flags.yaml")
+        operation_flag = parse_yaml_config("../src/server/flags.yaml")
+        account_enter_flag = operation_flag["account_enter"]
 
         query_string = f"{email} {password} {account_enter_flag}"
         try:
@@ -78,14 +84,39 @@ class Client:
 
         if send_data:
             print(f">> Sent: '{query_string}' to server to autorization operation, size sent data: {send_data}")
+            time.sleep(0.2)
+            # print(f'recv_data = {self.recv_data.decode("utf-8")}={"str" if isinstance(self.recv_data.decode("utf-8"), str) else "int"}')
+            # Ошибка
+            if int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
+                error_label.set_text("Ошибка")
+                return
+            # Пользователь найден
+            elif int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
+                print(">> Авторизация прошла успешно")
+                signin_scene.run = False
+                main_game_scene = MainGameScene(screen=scene_params[0], settings=scene_params[1], client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5])
+                main_game_scene.main()
+            # Неизвестно
+            elif int(self.recv_data.decode("utf-8")) == response_flags["EXCEPTION"]:
+                error_label.set_text("Неизвестно")
+                return
+            # Пользователь не найден
+            elif int(self.recv_data.decode("utf-8")) == response_flags["EXCEPTION"]:
+                error_label.set_text("Неверный логин или пароль")
+                return
         else:
             print(">> No data sent.")
+            error_label.set_text("Не удалось выполнить запрос: code -1")
             return
     
-    def account_registration(self, email: str, name: str, password: str, error_label: Label) -> None:
+    def account_registration(self, email: str, name: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list) -> None:
         """ Метод для регистрации пользователя """
-        flags = parse_yaml_config("../src/server/flags.yaml")
-        account_enter_flag = flags['account_register']
+        response_flags = parse_yaml_config("flags.yaml")
+        operation_flags = parse_yaml_config("../src/server/flags.yaml")
+        account_enter_flag = operation_flags["account_register"]
+        registration_flags = parse_yaml_config("../src/client/registration_flags.yaml")
+
+        confirm_code = None
 
         query_string = f"{email} {name} {password} {account_enter_flag}"
         try:
@@ -96,7 +127,42 @@ class Client:
 
         if send_data:
             print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
+            time.sleep(0.2)
+
+            # # Код подтверждения
+            # if len(self.recv_data.decode("utf-8")) == 6:
+            #     confirm_code = self.recv_data.decode("utf-8")
+            #     print(">> Сгенерирован код подтверждения: {confirm_code}")
+            # Почта существует
+            if int(self.recv_data.decode("utf-8")) == registration_flags["EMAIL_EXIST"]:
+                error_label.set_text("Почта уже занята")
+                return
+            elif int(self.recv_data.decode("utf-8")) == registration_flags["UNCORRECT_EMAIL"]:
+                error_label.set_text("Неверный формат почты")
+                return
+            # Имя существует
+            elif int(self.recv_data.decode("utf-8")) == registration_flags["NAME_EXIST"]:
+                error_label.set_text("Имя уже занято")
+                return
+            # Неверное имя
+            elif int(self.recv_data.decode("utf-8")) == registration_flags["UNCORRECT_NAME"]:
+                error_label.set_text("Имя должно быть больше 3 и меньше 50 символов")
+                return
+            # Неверный пароль
+            elif int(self.recv_data.decode("utf-8")) == registration_flags["UNCORRECT_PASSWORD"]:
+                error_label.set_text("Пароль должен быть больше 8 и меньше 100 символов")
+                return
+            elif int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
+                print(">> Регистрация прошла успешно")
+                
+                self.socket_peer.send(operation_flags["QUERY_CONFIRM_CODE"].encode("utf-8"))
+
+                signin_scene.run = False
+                confirm_code_scene = ConfirmCode_scene(screen=scene_params[0], settings=scene_params[1], 
+                                                       client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5], sent_code="123", email=scene_params[6])
+                confirm_code_scene.main()
         else:
             print(">> No data sent.")
+            error_label.set_text("Не удалось выполнить запрос: code -1")
             return
 

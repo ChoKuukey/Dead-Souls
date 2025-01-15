@@ -1,9 +1,9 @@
 #include "data_func.h"
 #include "db.h"
 
+#include <stdbool.h>
+
 PGconn *conn;
-
-
 
 static void print_libpq_version() {
     int lib_ver = PQlibVersion();
@@ -15,7 +15,7 @@ static void exit_nicely(PGconn *conn) {
     PQfinish(conn);
 }
 
-char** get_db_config(void) {
+static char** get_db_config(void) {
     char** db_config;
     #if defined(_WIN32) || defined(_WIN64)
     db_config = get_yaml_config("../data/db/db_config.yaml", 6);
@@ -153,6 +153,7 @@ void connect_to_db(void) {
 }
 
 int account_signin(char** data_string) {
+    //* Запрос на авторизацию пользователя
     char** db_config = get_db_config();
 
     if (conn == NULL || data_string == NULL) {
@@ -184,5 +185,102 @@ int account_signin(char** data_string) {
     } else {
         printf(">> User %s not found\n", email);
         return QUERY_EXCEPTION;
+    }
+}
+
+int account_registration(char** data_string) {
+    //* Запрос на регистрацию пользователя
+    char** db_config = get_db_config();
+
+    if (conn == NULL || data_string == NULL) {
+        fprintf(stderr, ">> Invalid arguments in account_registration\n");
+        exit(1);
+    }
+
+    const int id = atoi(data_string[0]);
+    const char* email = data_string[1];
+    const char* name = data_string[2];
+    const char* password_digest = data_string[3];
+    const bool is_dev = (atoi(data_string[4]) == 1);
+
+    char query[MAX_SQL_QUERY_LENGTH];
+
+
+    //* Проверка на совпадение почты
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT FROM %s WHERE email = %s;", db_config[4], data_string[1]);
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        return QUERY_ERROR;
+    }
+    int rows = PQntuples(res);
+    PQclear(res);
+    if (rows > 0) {
+        printf(">> Email %s is already registered\n", email);
+        PQclear(res);
+        return EMAIL_EXIST;
+    }
+
+    //* Проверка на совпадение имени
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT FROM %s WHERE name = %s;", db_config[4], data_string[2]);
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        return QUERY_ERROR;
+    }
+    int rows = PQntuples(res);
+    PQclear(res);
+    if (rows > 0) {
+        printf(">> Name %s is already used\n", email);
+        PQclear(res);
+        return NAME_EXIST;
+    }
+
+    //* Проверка на правильность имени
+    if (strlen(name) < 3 || strlen(name) > 50) {
+        printf(">> Invalid name length\n");
+        PQclear(res);
+        return UNCORRECT_NAME;
+    }
+
+    //* Проверка на правильность пароля
+    if (strlen(password_digest) < 8 || strlen(password_digest) > 100) {
+        printf(">> Invalid password length\n");
+        PQclear(res);
+        return UNCORRECT_PASSWORD;
+    }
+
+    //* Запрос на самый большой id
+    int max_id;
+
+    snprintf(query, MAX_RESULT_LENGTH, "SELECT MAX(id) FROM %s;", db_config[4]);
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        return QUERY_ERROR;
+    }
+    int rows = PQntuples(res);
+    if (rows == 0) {
+        max_id = 0;
+        PQclear(res);
+    } else {
+        max_id = atoi(PQgetvalue(res, 0, 0));
+        PQclear(res);
+    }
+    
+
+    //* Если всё правильно, то регистрируем пользователя
+    snprintf(query, MAX_RESULT_LENGTH, "INSERT INTO %s (id, email, name, password_digest, is_dev, created_at, updated_at, is_active) VALUES (%d, %s, %s, %s, false, now(), now(), false)");
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        return QUERY_ERROR;
+    } else {
+        return QUERY_SUCCESS;
     }
 }
