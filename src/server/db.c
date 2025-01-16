@@ -64,7 +64,7 @@ void connect_to_db(void) {
         name VARCHAR(255) NOT NULL, \
         password_digest VARCHAR(255) NOT NULL, \
         is_dev boolean NOT NULL DEFAULT FALSE, \
-        create_at timestamp without time zone, \
+        created_at timestamp without time zone, \
         updated_at timestamp without time zone, \
         is_active boolean NOT NULL DEFAULT FALSE);", db_config[4]);
 
@@ -198,17 +198,15 @@ int account_registration(char** data_string) {
         exit(1);
     }
 
-    const int id = atoi(data_string[0]);
-    const char* email = data_string[1];
-    const char* name = data_string[2];
-    const char* password_digest = data_string[3];
-    const bool is_dev = (atoi(data_string[4]) == 1);
+    const char* email = data_string[0];
+    const char* name = data_string[1];
+    const char* password_digest = data_string[2];
 
     char query[MAX_SQL_QUERY_LENGTH];
 
 
     //* Проверка на совпадение почты
-    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT FROM %s WHERE email = %s;", db_config[4], data_string[1]);
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT * FROM %s WHERE email = '%s';", db_config[4], data_string[0]);
     PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
@@ -219,12 +217,12 @@ int account_registration(char** data_string) {
     PQclear(res);
     if (rows > 0) {
         printf(">> Email %s is already registered\n", email);
-        PQclear(res);
+        // PQclear(res);
         return EMAIL_EXIST;
     }
 
     //* Проверка на совпадение имени
-    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT FROM %s WHERE name = %s;", db_config[4], data_string[2]);
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT * FROM %s WHERE name = '%s';", db_config[4], data_string[1]);
     res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
@@ -235,21 +233,21 @@ int account_registration(char** data_string) {
     PQclear(res);
     if (rows > 0) {
         printf(">> Name %s is already used\n", email);
-        PQclear(res);
+        // PQclear(res);
         return NAME_EXIST;
     }
 
     //* Проверка на правильность имени
     if (strlen(name) < 3 || strlen(name) > 50) {
         printf(">> Invalid name length\n");
-        PQclear(res);
+        // PQclear(res);
         return UNCORRECT_NAME;
     }
 
     //* Проверка на правильность пароля
     if (strlen(password_digest) < 8 || strlen(password_digest) > 100) {
         printf(">> Invalid password length\n");
-        PQclear(res);
+        // PQclear(res);
         return UNCORRECT_PASSWORD;
     }
 
@@ -264,24 +262,27 @@ int account_registration(char** data_string) {
         return QUERY_ERROR;
     }
     rows = PQntuples(res);
-    if (rows == 0) {
-        max_id = 0;
-        PQclear(res);
+    if (rows == 0 || PQgetvalue(res, 0, 0) == NULL) {
+        max_id = 1;
+        // PQclear(res);
     } else {
-        max_id = atoi(PQgetvalue(res, 0, 0));
-        PQclear(res);
+        max_id = atoi(PQgetvalue(res, 0, 0)) + 1;
+        printf("max_id: %d\n", max_id);
+        
     }
-    
+    PQclear(res);
 
     //* Если всё правильно, то регистрируем пользователя
-    snprintf(query, MAX_RESULT_LENGTH, "INSERT INTO %s (id, email, name, password_digest, is_dev, created_at, updated_at, is_active) VALUES (%d, %s, %s, %s, false, now(), now(), false)");
+    snprintf(query, MAX_RESULT_LENGTH, "INSERT INTO %s (id, email, name, password_digest, is_dev, created_at, updated_at, is_active) VALUES (%d, '%s', '%s', '%s', false, now(), now(), false);", db_config[4], max_id, email, name, password_digest);
     res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
 
-    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
         fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
         PQclear(res);
         return QUERY_ERROR;
     } else {
+        printf("User '%s' created successfully\n", email);
+        PQclear(res);
         return QUERY_SUCCESS;
     }
 }

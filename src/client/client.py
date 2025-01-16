@@ -115,6 +115,7 @@ class Client:
         operation_flags = parse_yaml_config("../src/server/flags.yaml")
         account_enter_flag = operation_flags["account_register"]
         registration_flags = parse_yaml_config("../src/client/registration_flags.yaml")
+        print(registration_flags)
 
         if email == "" or name == "" or password == "":
             error_label.set_text("Поля не могут быть пустыми")
@@ -132,12 +133,13 @@ class Client:
         if send_data:
             print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
             time.sleep(0.2)
-
+            print(f">> server send data: '{self.recv_data}'")
             # # Код подтверждения
             # if len(self.recv_data.decode("utf-8")) == 6:
             #     confirm_code = self.recv_data.decode("utf-8")
             #     print(">> Сгенерирован код подтверждения: {confirm_code}")
             # Почта существует
+            
             if int(self.recv_data.decode("utf-8")) == registration_flags["EMAIL_EXIST"]:
                 error_label.set_text("Почта уже занята")
                 return
@@ -150,21 +152,29 @@ class Client:
                 return
             # Неверное имя
             elif int(self.recv_data.decode("utf-8")) == registration_flags["UNCORRECT_NAME"]:
-                error_label.set_text("Имя должно быть больше 3 и меньше 50 символов")
+                error_label.set_text("Имя должно быть > 3 и < 50 символов")
                 return
             # Неверный пароль
             elif int(self.recv_data.decode("utf-8")) == registration_flags["UNCORRECT_PASSWORD"]:
-                error_label.set_text("Пароль должен быть больше 8 и меньше 100 символов")
+                error_label.set_text("Пароль должен быть > 8 и < 100 символов")
                 return
             elif int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
                 print(">> Регистрация прошла успешно")
-                
-                self.socket_peer.send(str(operation_flags["query_confirm_code"]).encode("utf-8"))
+                try:
+                    self.socket_peer.send(str(operation_flags["query_confirm_code"]).encode("utf-8"))
+                except socket.error as e:
+                    print(f">> Failed to send data to server. ({e})")
+                    return
 
                 signin_scene.run = False
                 confirm_code_scene = ConfirmCode_scene(screen=scene_params[0], settings=scene_params[1], 
-                                                       client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5], sent_code="123", email=email)
+                                                        client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5], sent_code="123", email=email)
                 confirm_code_scene.main()
+            elif int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
+                print(">> Неизвестная ошибка")
+                error_label.set_text("Неизвестная ошибка")
+                return   
+                
         else:
             print(">> No data sent.")
             error_label.set_text("Не удалось выполнить запрос: code -1")

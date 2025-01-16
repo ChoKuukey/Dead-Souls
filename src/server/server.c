@@ -162,13 +162,24 @@ int main(void) {
                     char result_buffer[MAX_RESULT_LENGTH + 1];
 
                     if (atoi(data[data_count - 1]) == ACCOUNT_REGISTRATION) {
+                        puts(">> Starting account registration");
                         result = account_registration(data);
                     } else if (atoi(data[data_count - 1]) == ACCOUNT_SIGNIN) {
+                        puts(">> Starting account signin");
                         result = account_signin(data);
-                    } else if (atoi(data[data_count - 1]) == CONFIRM_CODE)
+                    } else if (atoi(data[data_count - 1]) == CONFIRM_CODE) {
+                        puts(">> Starting confirm code");
+                        printf(">> Confirm code\n");
+                    }
 
                     if (result == QUERY_ERROR) {
                         fprintf(stderr, ">> Failed to send data to database: 'NULL RESULT'\n");
+                        snprintf(result_buffer, MAX_RESULT_LENGTH, "%d", result);
+                        if (send(client_socket, result_buffer, strlen(result_buffer), 0) == -1) {
+                            fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                        } else {
+                            printf(">> Data sent to client %s\n", result_buffer);
+                        }
                         continue;
                     }
 
