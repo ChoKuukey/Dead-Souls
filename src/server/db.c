@@ -273,7 +273,8 @@ int account_registration(char** data_string) {
     PQclear(res);
 
     //* Если всё правильно, то регистрируем пользователя
-    snprintf(query, MAX_RESULT_LENGTH, "INSERT INTO %s (id, email, name, password_digest, is_dev, created_at, updated_at, is_active) VALUES (%d, '%s', '%s', '%s', false, now(), now(), false);", db_config[4], max_id, email, name, password_digest);
+    snprintf(query, MAX_RESULT_LENGTH, "INSERT INTO %s (id, email, name, password_digest, is_dev, created_at, updated_at, is_active) \
+        VALUES (%d, '%s', '%s', '%s', false, now(), now(), false);", db_config[4], max_id, email, name, password_digest);
     res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
 
     if (PQresultStatus(res) != PGRES_COMMAND_OK) {

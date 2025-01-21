@@ -176,7 +176,12 @@ char* generate_confirm_code() {
     // Выбор рандомайзера внутри цикла
     randomizer = rand() % 4;
 
-    char* code;
+    char* code = (char*)malloc(7 * sizeof(char));
+
+    if (code == NULL) {
+        fprintf(stderr, ">> Memory allocation failed\n");
+        exit(1);
+    }
 
     for(i = 0; i < 6; ++i) {
         if (randomizer == 1) { 
@@ -196,6 +201,8 @@ char* generate_confirm_code() {
             randomizer = rand() % 4; 
         } 
     }
+
+    code[6] = '\0';
 
     return code;
 }
