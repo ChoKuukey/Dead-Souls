@@ -44,3 +44,4 @@ typedef enum {
 void connect_to_db(void);
 int account_signin(char** data_string);
 int account_registration(char** data_string);
+int send_confirm_code(char** data_string, char* code);

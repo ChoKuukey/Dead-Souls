@@ -54,7 +54,7 @@ class Client:
             print(">> Waiting for data...")
             self.recv_data = self.socket_peer.recv(1024)
             if self.recv_data:
-                print(f">> Received: {self.recv_data.decode('utf-8')}")
+                print(f">> Received: {self.recv_data.decode('utf-8')} len: {len(self.recv_data.decode('utf-8'))}")
             else:
                 print(">> No data received.")
                 return
@@ -151,31 +151,34 @@ class Client:
                 return
             elif int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
                 print(">> Регистрация прошла успешно")
-                try:
-                    self.socket_peer.send(str(operation_flags["query_confirm_code"]).encode("utf-8"))
-                except socket.error as e:
-                    print(f">> Failed to send data to server. ({e})")
-                    return
-
-                signin_scene.run = False
-                confirm_code_scene = ConfirmCode_scene(screen=scene_params[0], settings=scene_params[1], 
-                                                        client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5], sent_code="123", email=email)
-                
                 # Запрос на код подтверждения
+                query_string = f"{email} {operation_flags['query_confirm_code']}"
+
                 try:
-                    send_data = self.socket_peer.send(str(operation_flags["query_confirm_code"]).encode("utf-8"))
+                    send_data = self.socket_peer.send(query_string.encode("utf-8"))
                 except socket.error as e:
                     print(f">> Failed to send data to server. ({e})")
                     return 
                 
                 if send_data:
-                    print(f">> Sent: '{operation_flags['query_confirm_code']}' to server to registration operation, size sent data: {send_data}")
-                    time.sleep(0.2)
+                    print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
+                    while True:
+                        if len(str(self.recv_data.decode("utf-8"))) < 6:
+                            print(f">> Skip")
+                            time.sleep(1)
+                        if len(str(self.recv_data.decode("utf-8"))) == 6:
+                            break
 
-                    # Ошибка
-                    
+                    print(f">> Recived data from server: {self.recv_data.decode('utf-8')} size: {len(self.recv_data.decode('utf-8'))}")
 
-                confirm_code_scene.main()
+                    if len(str(self.recv_data.decode("utf-8"))) == 6:
+                        confirm_code = self.recv_data.decode("utf-8")
+                        signin_scene.run = False
+                        confirm_code_scene = ConfirmCode_scene(screen=scene_params[0], settings=scene_params[1], 
+                                                        client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5], sent_code=confirm_code, email=email)
+
+                    # 
+                        confirm_code_scene.main()
             elif int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
                 print(">> Неизвестная ошибка")
                 error_label.set_text("Неизвестная ошибка")

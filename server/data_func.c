@@ -160,49 +160,28 @@ char** parse_data_string(const char* data_string) {
 }
 
 char* generate_confirm_code() {
-
     int i = 0;
-
     int randomizer = 0;
-
     char numbers[] = "0123456789";
     char LETTERS[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    // Начальное значение генератора случайных чисел 
-    // с текущим временем, чтобы 
-    // числа, которые были разными,
     srand((unsigned int)(time(NULL)));
 
-    // Выбор рандомайзера внутри цикла
-    randomizer = rand() % 4;
-
     char* code = (char*)malloc(7 * sizeof(char));
-
     if (code == NULL) {
         fprintf(stderr, ">> Memory allocation failed\n");
         exit(1);
     }
 
     for(i = 0; i < 6; ++i) {
-        if (randomizer == 1) { 
+        randomizer = rand() % 4;
+        if (randomizer == 0 || randomizer == 2) { 
             code[i] = numbers[rand() % 10]; 
-            randomizer = rand() % 4; 
-        } 
-        else if (randomizer == 2) { 
-            code[i] = LETTERS[rand() % 8]; 
-            randomizer = rand() % 4; 
-        } 
-        else if (randomizer == 3) { 
-            code[i] = numbers[rand() % 26]; 
-            randomizer = rand() % 4; 
-        } 
-        else { 
+        } else { 
             code[i] = LETTERS[rand() % 26]; 
-            randomizer = rand() % 4; 
-        } 
+        }
     }
 
     code[6] = '\0';
-
     return code;
 }

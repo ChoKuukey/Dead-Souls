@@ -1,4 +1,4 @@
-#include "../../src/server/data_func.h"
+#include "../server/data_func.h"
 
 #include <stdio.h>
 

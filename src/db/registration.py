@@ -14,8 +14,6 @@ from db.db import (
  
 from scenes.ConfirmCodeScene import ConfirmCode_scene
 
-from mail.ConfirmCode import send_confirm_code 
-
 pygame.init()
 
 
@@ -112,11 +110,3 @@ class Registration:
             return
 
         self.connection.close(self.db, self.cursor) 
-
-        """ Отправка кода подтверждения """
-        sent_code =send_confirm_code(email, error_label)
-
-        confirm_code_scene = ConfirmCode_scene(confirm_code_screen, settings, self.db, db_config, bg = "../src/imgs/cool_bg.png", sent_code = sent_code, email = email)
-        confirm_code_scene.main()
-
-        self.connection.close(self.db, self.cursor)

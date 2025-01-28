@@ -5,6 +5,10 @@
 #include "db.h"
 #include "data_func.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#include<windows.h>
+#endif
+
 
 int main(void) {
     // Set the locale to UTF-8
@@ -162,8 +166,27 @@ int main(void) {
                         puts(">> Starting account signin");
                         result = account_signin(data);
                     } else if (atoi(data[data_count - 1]) == CONFIRM_CODE) {
+                        //* Отправка кода подтверждения
                         puts(">> Starting confirm code");
-                        printf(">> Confirm code\n");
+                        char* code = generate_confirm_code();
+                        printf(">> Confrim code: %s\n", code);
+                        int send_res = send_confirm_code(data, code);
+                        if (send_res == QUERY_SUCCESS) {
+                            snprintf(result_buffer, MAX_RESULT_LENGTH, "%s", code);
+                            result_buffer[MAX_RESULT_LENGTH] = '\0';
+                            if (result_buffer == NULL) {
+                                fprintf(stderr, ">> Failed to allocate memory for result buffer\n");
+                                continue;
+                            };
+
+                            if (send(client_socket, result_buffer, strlen(result_buffer), 0) == -1) {
+                                fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                            } else {
+                                printf(">> Data sent to client %s\n", result_buffer);
+                            }
+                            // Sleep(200);
+                            continue;
+                        }
                     }
 
                     if (result == QUERY_ERROR) {

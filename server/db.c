@@ -287,3 +287,32 @@ int account_registration(char** data_string) {
         return QUERY_SUCCESS;
     }
 }
+
+int send_confirm_code(char** data_string, char* code) {
+    //* Отправка подтверждения по почте
+
+    char* email = data_string[0];
+    
+    if (email == NULL) {
+        fprintf(stderr, ">> Email is NULL in send_confirm_code\n");
+        return QUERY_ERROR;
+    }
+
+    if (code == NULL) {
+        fprintf(stderr, ">> Code is NULL in send_confirm_code\n");
+        return QUERY_ERROR;
+    }
+
+    char command[MAX_RESULT_LENGTH];
+    snprintf(command, MAX_RESULT_LENGTH, "python D:/Programming/Python/Dead-Souls/server/send_confirm_code.py %s %s", email, code);
+
+    int res = system(command);
+    if (res != 0) {
+        fprintf(stderr, ">> System call failed in send_confirm_code\n");
+        return QUERY_ERROR;
+    }
+
+    printf(">> Confirm code sent to %s\n", email);
+
+    return QUERY_SUCCESS;
+}
