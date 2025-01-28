@@ -72,7 +72,7 @@ class Client:
     def account_enter(self, email: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list) -> None:
         """ Метод для авторизации пользователя """
         response_flags = parse_yaml_config("../src/client/flags.yaml")
-        operation_flag = parse_yaml_config("../src/server/flags.yaml")
+        operation_flag = parse_yaml_config("../src/client/server_flags.yaml")
         account_enter_flag = operation_flag["account_enter"]
 
         query_string = f"{email} {password} {account_enter_flag}"
@@ -96,10 +96,6 @@ class Client:
                 signin_scene.run = False
                 main_game_scene = MainGameScene(screen=scene_params[0], settings=scene_params[1], client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5])
                 main_game_scene.main()
-            # Неизвестно
-            elif int(self.recv_data.decode("utf-8")) == response_flags["EXCEPTION"]:
-                error_label.set_text("Неизвестно")
-                return
             # Пользователь не найден
             elif int(self.recv_data.decode("utf-8")) == response_flags["EXCEPTION"]:
                 error_label.set_text("Неверный логин или пароль")
@@ -112,7 +108,7 @@ class Client:
     def account_registration(self, email: str, name: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list) -> None:
         """ Метод для регистрации пользователя """
         response_flags = parse_yaml_config("../src/client/flags.yaml")
-        operation_flags = parse_yaml_config("../src/server/flags.yaml")
+        operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
         account_enter_flag = operation_flags["account_register"]
         registration_flags = parse_yaml_config("../src/client/registration_flags.yaml")
         print(registration_flags)

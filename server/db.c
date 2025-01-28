@@ -166,7 +166,7 @@ int account_signin(char** data_string) {
     const char* password = data_string[1];
 
     char query[MAX_SQL_QUERY_LENGTH];
-    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT * FROM %s WHERE email = '%s' AND password_digest = '%s';", db_config[4], data_string[0], data_string[1]);
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT * FROM %s WHERE email = '%s' AND password_digest = '%s' AND is_active = true;", db_config[4], data_string[0], data_string[1]);
 
     
     PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);

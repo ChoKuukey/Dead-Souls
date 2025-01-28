@@ -36,7 +36,7 @@ if __name__ == '__main__':
     client = Client()
 
 
-    client_thread = threading.Thread(target=client.connect_to_server, args=("127.0.0.1", 8080))
+    client_thread = threading.Thread(target=client.connect_to_server, args=("89.189.179.132", 8623))
     client_thread.daemon = True
     client_thread.start()
 

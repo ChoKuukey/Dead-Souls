@@ -10,21 +10,16 @@ int main(void) {
     // Set the locale to UTF-8
     setlocale(LC_ALL, "en_US.UTF-8");
 
-    char** server_config = get_yaml_config("../src/server/server.yaml", 2);
-    char* server_address = (char*)malloc(strlen("127.0.0.1") + 1);
-    // printf(">> Allocating memory for server address = %d\n", sizeof(server_address));
-    // printf(">> server length: %d\n", strlen(server_config[0]));
-    // printf(">> server might be: %d\n", strlen("127.0.0.1"));
+    char** server_config = get_yaml_config("../server/server.yaml", 2);
+    char* server_address = (char*)malloc(strlen(server_config[0]) + 1);
 
     if (server_address == NULL) {
         fprintf(stderr, ">> Error to allocate memory for server address\n");
         exit(1);
     }
     // strcpy(server_address, server_config[0]);
-    strncpy(server_address, server_config[0], (strlen("127.0.0.1")));
+    strncpy(server_address, server_config[0], strlen(server_config[0]));
     server_address[strlen(server_config[0])-1] = '\0';
-
-    // printf(">> Server address: %s lenght = %d\n", server_address, strlen(server_address));
 
     for (int i = 0; i < 2; ++i) {
         printf(">> server_config[%d]: %s\n", i, server_config[i]);
@@ -46,7 +41,7 @@ int main(void) {
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_NUMERICHOST | AI_PASSIVE | AI_NUMERICSERV; // Режим прослушивания
+    hints.ai_flags = AI_PASSIVE; //AI_NUMERICHOST | AI_PASSIVE | AI_NUMERICSERV; // Режим прослушивания
 
     struct addrinfo *bind_address;
     int result = getaddrinfo(server_address, server_config[1], &hints, &bind_address);
@@ -63,11 +58,10 @@ int main(void) {
 
     // Вывод адреса сервера
     char server_ip_address[INET_ADDRSTRLEN];
-    char server_port[INET_ADDRSTRLEN];
     struct sockaddr_in *addr_in = (struct sockaddr_in*) bind_address->ai_addr;
     inet_ntop(AF_INET, &(addr_in->sin_addr), server_ip_address, INET_ADDRSTRLEN);
     // htons - преобразует 16-битное целое число из хостового порядка байтов в сетевой порядок байтов.
-    printf(">> server address: %s:%d\n", server_ip_address, ntohs(addr_in->sin_port));
+    printf("Server address: %s:%s\n", server_ip_address, server_config[1]);
 
     // Слушащий сокет
     printf(">> Creating socket...\n");
