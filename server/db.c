@@ -316,3 +316,32 @@ int send_confirm_code(char** data_string, char* code) {
 
     return QUERY_SUCCESS;
 }
+
+int account_activation(char** data_string) {
+    //* Активация аккаунта пользователя
+    char** db_config = get_db_config();
+
+    char* email = data_string[0];
+
+    if (email == NULL) {
+        fprintf(stderr, ">> Email is NULL in account_activation\n");
+        return QUERY_ERROR;
+    }
+
+    char query[MAX_SQL_QUERY_LENGTH];
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "UPDATE %s SET is_active = true WHERE email = '%s';", db_config[4], email);
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+
+    // Проверка выполнения запроса
+    if (PQresultStatus(res)!= PGRES_COMMAND_OK) {
+        fprintf(stderr, "Query failed:%s\n", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+        return QUERY_ERROR;
+    }
+
+    printf(">> Successfully activeted user's email. User: %s\n", email);
+    puts("\n");
+
+    return QUERY_SUCCESS;
+}

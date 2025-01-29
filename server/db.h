@@ -23,13 +23,14 @@ typedef enum {
     QUERY_SUCCESS, // Успешный запрос
     QUERY_UNKNOWN, // Неизвестный статус
     QUERY_EXCEPTION // 
-} QUERY_STATUS;
+} QUERY_STATUS; //* Отправляем пользователю
 
 typedef enum {
     ACCOUNT_SIGNIN = 1,
     ACCOUNT_REGISTRATION,
-    CONFIRM_CODE //* Запрос на код подтверждения
-} QUERY_FLAGS;
+    CONFIRM_CODE, //* Запрос на код подтверждения
+    ACCOUNT_ACTIVATION
+} QUERY_FLAGS; //* Принимаем от пользователя
 
 typedef enum {
     EMAIL_EXIST = 5,
@@ -37,7 +38,7 @@ typedef enum {
     NAME_EXIST,
     UNCORRECT_NAME,
     UNCORRECT_PASSWORD
-} REGISTRATION_STATUS;
+} REGISTRATION_STATUS; //* Отправляем пользователю
 
 
 
@@ -45,3 +46,4 @@ void connect_to_db(void);
 int account_signin(char** data_string);
 int account_registration(char** data_string);
 int send_confirm_code(char** data_string, char* code);
+int account_activation(char** data_string);

@@ -160,13 +160,19 @@ int main(void) {
                     char result_buffer[MAX_RESULT_LENGTH + 1];
 
                     if (atoi(data[data_count - 1]) == ACCOUNT_REGISTRATION) {
+                        //* Регистрация пользователя
                         puts(">> Starting account registration");
                         result = account_registration(data);
                     } else if (atoi(data[data_count - 1]) == ACCOUNT_SIGNIN) {
+                        //* Авторизация пользователя
                         puts(">> Starting account signin");
                         result = account_signin(data);
+                    } else if (atoi(data[data_count - 1]) == ACCOUNT_ACTIVATION) {
+                        //* Активация аккаунта пользователя
+                        printf(">> Starting account activation. User: \n%s", data[0]);
+                        result = account_activation(data);
                     } else if (atoi(data[data_count - 1]) == CONFIRM_CODE) {
-                        //* Отправка кода подтверждения
+                        //* Отправка кода подтверждения на почту пользователя
                         puts(">> Starting confirm code");
                         char* code = generate_confirm_code();
                         printf(">> Confrim code: %s\n", code);
@@ -188,6 +194,7 @@ int main(void) {
                             continue;
                         }
                     }
+                    
 
                     if (result == QUERY_ERROR) {
                         fprintf(stderr, ">> Failed to send data to database: 'NULL RESULT'\n");

@@ -4,6 +4,7 @@ import socket
 import time
 import os
 import sys
+import pygame
 
 from widgets.label import Label
 
@@ -15,6 +16,10 @@ from scenes.ConfirmCodeScene import ConfirmCode_scene
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from data.dataFuncs import parse_yaml_config
+
+pygame.init()
+
+fpsClock = pygame.time.Clock()
 
 class Client:
     def __init__(self):
@@ -68,7 +73,7 @@ class Client:
 
     def close_connection_to_server(self):
         self.run = False
-
+    
     def account_enter(self, email: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list) -> None:
         """ Метод для авторизации пользователя """
         response_flags = parse_yaml_config("../src/client/flags.yaml")
@@ -80,6 +85,7 @@ class Client:
             send_data = self.socket_peer.send(query_string.encode("utf-8"))
         except socket.error as e:
             print(f">> Failed to send data to server. ({e})")
+            error_label.set_text("Ошибка 503")
             return 
 
         if send_data:
@@ -111,19 +117,17 @@ class Client:
         operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
         account_enter_flag = operation_flags["account_register"]
         registration_flags = parse_yaml_config("../src/client/registration_flags.yaml")
-        print(registration_flags)
 
         if email == "" or name == "" or password == "":
             error_label.set_text("Поля не могут быть пустыми")
             return
-
-        confirm_code = None
 
         query_string = f"{email} {name} {password} {account_enter_flag}"
         try:
             send_data = self.socket_peer.send(query_string.encode("utf-8"))
         except socket.error as e:
             print(f">> Failed to send data to server. ({e})")
+            error_label.set_text("Ошибка 503")
             return 
 
         if send_data:
@@ -162,10 +166,13 @@ class Client:
                 
                 if send_data:
                     print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
-                    while True:
-                        if len(str(self.recv_data.decode("utf-8"))) < 6:
-                            print(f">> Skip")
-                            time.sleep(1)
+                    # load_animation = pygame.image.load("../src/imgs/loader_anim.gif").convert_alpha()
+                    # anim_rect = load_animation.get_rect(center=(scene_params[0].get_width() // 2, scene_params[0].get_height() // 2))
+                    # scene_params[0].blit(load_animation, anim_rect)
+                    # pygame.display.flip()
+                    error_label.set_text("Пожалуйста, подождите...")
+                    
+                    while len(str(self.recv_data.decode("utf-8"))) < 6:
                         if len(str(self.recv_data.decode("utf-8"))) == 6:
                             break
 
@@ -189,3 +196,41 @@ class Client:
             error_label.set_text("Не удалось выполнить запрос: code -1")
             return
 
+    def activate_user_account(self, user_email: str, confirm_code_scene: ConfirmCode_scene, error_label: Label, scene_params: list):
+        """ Активация аккаунта """
+        response_flags = parse_yaml_config("../src/client/flags.yaml")
+        operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
+
+        query_string = f"{user_email} {operation_flags['account_activation']}"
+
+        try:
+            send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        except socket.error as e:
+            print(f">> Failed to send data to server. ({e})")
+            error_label.set_text("Ошибка 503")
+            return
+        
+        if send_data:
+            print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
+
+            time.sleep(0.5)
+
+            print(f">> Recieved data from server: {self.recv_data.decode('utf-8')} size: {len(self.recv_data.decode('utf-8'))}")
+
+            # Ошибка
+            if int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
+                print(">> Неизвестная ошибка")
+                return
+            elif int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
+                print(">> Активация прошла успешно")
+
+
+                confirm_code_scene.run = False
+
+                maim_game_scene = MainGameScene(scene_params[0], scene_params[1], self, scene_params[2], scene_params[3], "../src/imgs/main_bg.png")
+                maim_game_scene.main()
+
+        else:
+            print(">> No data sent.")
+            error_label.set_text("Не удалось выполнить запрос: code -1")
+            return

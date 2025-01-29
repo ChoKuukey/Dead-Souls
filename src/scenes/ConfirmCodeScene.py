@@ -2,7 +2,6 @@
 import pygame
 import sys
 
-
 from scenes.scene import Scene
 
 from scenes.MainGameScrene import MainGameScene
@@ -62,20 +61,10 @@ class ConfirmCode_scene(Scene):
         else:
             print(">> Код подтвержден")
             """ обновление is_active у учетки """
-            connection = Connection(self.__DB, self.__DB_CONFIG)
-            connection.connect()
-            self.__DB = connection.db
-            cursor = connection.cursor
-            cursor.execute(f"UPDATE {self.__DB_CONFIG['table']} SET is_active = TRUE WHERE email = %s", (self.__EMAIL,))
-            self.__DB.commit()
-            connection.close(self.__DB, cursor)
-            print(">> Учетка активирована")
-            error_label.set_text("")
 
-            self.run = False
-
-            self.maim_game_scene = MainGameScene(self.screen, self.settings, self.__DB, self.__DB_CONFIG, "../src/imgs/main_bg.png")
-            self.maim_game_scene.main()
+            scene_params = [self.screen, self.settings, self.__DB, self.__DB_CONFIG]
+            
+            self.client.activate_user_account(self.__EMAIL, self, error_label, scene_params)
 
 
     def main(self) -> None:

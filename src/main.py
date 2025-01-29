@@ -3,7 +3,6 @@
 import pygame
 import os
 import sys
-from multiprocessing import Process
 import threading
 
 from scenes.MainMenuScene import MainScene
