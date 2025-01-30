@@ -35,6 +35,7 @@ typedef enum {
 typedef enum {
     EMAIL_EXIST = 5,
     UNCORRECT_EMAIL,
+    EMAIL_TOO_LONG,
     NAME_EXIST,
     UNCORRECT_NAME,
     UNCORRECT_PASSWORD

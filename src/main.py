@@ -4,6 +4,7 @@ import pygame
 import os
 import sys
 import threading
+from multiprocessing import Process
 
 from scenes.MainMenuScene import MainScene
 from scenes.ConfirmCodeScene import ConfirmCode_scene
@@ -38,6 +39,9 @@ if __name__ == '__main__':
     client_thread = threading.Thread(target=client.connect_to_server, args=("89.189.179.132", 8623))
     client_thread.daemon = True
     client_thread.start()
+
+    # client_process = Process(target=client.connect_to_server, args=("89.189.179.132", 8623), name="Dead-Souls-Client", daemon=True)
+    # client_process.start()
 
     mainWin = MainScene(__SCREEN, __SETTINGS, client, __DB, __DB_CONFIG, bg="../src/imgs/cool_bg.png")
     mainWin.main()

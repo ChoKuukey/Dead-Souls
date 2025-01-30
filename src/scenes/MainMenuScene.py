@@ -6,18 +6,11 @@ import pygame
 from scenes.scene import Scene
 from scenes.register import Register_Scene
 from scenes.singin import SignInScene
+from scenes.SettingsScene import SettingsScene
 
 from widgets.button import (
-    Button,
     ImageButton
 )
-
-# from db.db import (
-#     Connection
-# )
-# from db.authorization import (
-#     Authorization
-# )
 
 from client.client import Client
 
@@ -49,18 +42,6 @@ class MainScene(Scene):
             self.bg = (0, 0, 0)
 
         self.objects = []
-        # self.connection = Connection(self.__DB, self.__DB_CONFIG)
-
-        # self.connection.connect()
-
-        # self.db = self.connection.db
-        # self.cursor = self.connection.cursor
-
-        # self.connection.init_db()
-
-        # self.connection.close(self.db, self.cursor)
-
-        # self.authorization = Authorization(self.connection)
 
     def __str__(self) -> str:
         return "class MainScene"
@@ -78,15 +59,27 @@ class MainScene(Scene):
         autorization_scene = SignInScene(self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, bg="../src/imgs/cool_bg.png")
         autorization_scene.main()
 
+    def __run_settings_scene(self):
+        settings_scene = SettingsScene(self.screen, self.settings, self.client, bg="../src/imgs/bg_settings.png")
+        settings_scene.main()
+
     def main(self) -> None:
         """ Главная функция """
 
         print(">> Запуск Dead Souls")
 
         self.run = True
-        self.objects.append(ImageButton(self.screen, 30, 30, 325, 110, 'Войти', 50, (255, 255, 255), lambda: self.__run_autorization_scene(), imagePath = "../src/imgs/btn.png"))
-        self.objects.append(ImageButton(self.screen, 30, 180, 325, 110, 'Регистрация', 50, (255, 255, 255), lambda: self.__run_registration_scene(), imagePath = "../src/imgs/btn.png"))
-        self.objects.append(ImageButton(self.screen, 30, 330, 325, 110, 'Выход', 50, (255, 255, 255), lambda: self.__exit_game(), imagePath = "../src/imgs/btn.png"))
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 520), (self.screen.get_height() - self.screen.get_height() / 2 - 200), 
+                                        400, 112, 'Войти', 50, (255, 255, 255), lambda: self.__run_autorization_scene(), imagePath = "../src/imgs/btn.png"))
+        
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 520), (self.screen.get_height() - self.screen.get_height() / 2 - 80), 
+                                        400, 112, 'Регистрация', 50, (255, 255, 255), lambda: self.__run_registration_scene(), imagePath = "../src/imgs/btn.png"))
+        
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 520), (self.screen.get_height() - self.screen.get_height() / 2 + 40), 
+                                        400, 112, 'Настройки', 50, (255, 255, 255), lambda: self.__run_settings_scene(), imagePath = "../src/imgs/btn.png"))
+        
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 520), (self.screen.get_height() - self.screen.get_height() / 2 + 160), 
+                                        400, 112, 'Выход', 50, (255, 255, 255), lambda: self.__exit_game(), imagePath = "../src/imgs/btn.png"))
 
         print(">> Приложение запущено...")
 
@@ -96,7 +89,7 @@ class MainScene(Scene):
             if isinstance(self.scaledimage, pygame.surface.Surface):
                 self.screen.blit(self.scaledimage, (0, 0))
             else:
-                self.screen.fill((0, 0, 0))
+                self.screen.fill((0, 0, 0)) 
             for event in pygame.event.get():
                 self.event = event
                 if event.type == pygame.QUIT:

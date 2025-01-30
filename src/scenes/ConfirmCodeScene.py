@@ -16,10 +16,6 @@ from widgets.textInput import (
     ImageTextInput
 )
 
-from db.db import (
-    Connection
-)
-
 pygame.init()
 
 fpsClock = pygame.time.Clock()

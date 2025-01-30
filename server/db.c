@@ -6,6 +6,10 @@
 
 PGconn *conn;
 
+#define MAX_USER_EMAIL_LENGTH 30
+#define MAX_USER_NAME_LENGTH 20
+#define MAX_USER_PASSWORD_LENGTH 35
+
 static void print_libpq_version() {
     int lib_ver = PQlibVersion();
     printf(">> Version of libpq: %d\n", lib_ver);
@@ -206,6 +210,12 @@ int account_registration(char** data_string) {
 
 
     //* Проверка на совпадение почты
+
+    if (strlen(email) > MAX_USER_EMAIL_LENGTH) {
+        fprintf(stderr, ">> Email is too long in account_registration\n");
+        return EMAIL_TOO_LONG;
+    }
+
     snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT * FROM %s WHERE email = '%s';", db_config[4], data_string[0]);
     PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
@@ -238,14 +248,14 @@ int account_registration(char** data_string) {
     }
 
     //* Проверка на правильность имени
-    if (strlen(name) < 3 || strlen(name) > 50) {
+    if (strlen(name) < 3 || strlen(name) > MAX_USER_NAME_LENGTH) {
         printf(">> Invalid name length\n");
         // PQclear(res);
         return UNCORRECT_NAME;
     }
 
     //* Проверка на правильность пароля
-    if (strlen(password_digest) < 8 || strlen(password_digest) > 100) {
+    if (strlen(password_digest) < 8 || strlen(password_digest) > MAX_USER_PASSWORD_LENGTH) {
         printf(">> Invalid password length\n");
         // PQclear(res);
         return UNCORRECT_PASSWORD;

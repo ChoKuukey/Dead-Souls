@@ -7,12 +7,13 @@ pygame.init()
 
 class Label(Widget):
     """ Лэйбл """
-    def __init__(self, window: pygame.Surface, x: int, y: int, width: int, height: int, fontSize: int, text: str, textColor: tuple = (255, 255, 255), bg_alpha: int = 255) -> None:
+    def __init__(self, window: pygame.Surface, x: int, y: int, width: int, height: int, fontSize: int, text: str, textColor: tuple = (255, 255, 255), bg_alpha: int = 255, anchor: str = 'center') -> None:
         super().__init__(window, x, y, width, height)
 
         self.__font = pygame.font.Font('../fonts/OffBit-101Bold.ttf', fontSize)
 
         self.__textColor = textColor
+        self.anchor = anchor
 
         self.text = text
         self.surface.set_alpha(bg_alpha)
@@ -27,8 +28,19 @@ class Label(Widget):
 
     def process(self, event) -> None:
         self.surface.fill((0, 0, 0, 0))
-        self.surface.blit(self.__labelSurface, [
-            self.rect.width / 2 - self.__labelSurface.get_rect().width / 2,
-            self.rect.height / 2 - self.__labelSurface.get_rect().height / 2
-        ])
+        if self.anchor == 'center':
+            self.surface.blit(self.__labelSurface, [
+                self.rect.width / 2 - self.__labelSurface.get_rect().width / 2,
+                self.rect.height / 2 - self.__labelSurface.get_rect().height / 2
+            ])
+        elif self.anchor == 'left':
+            self.surface.blit(self.__labelSurface, [
+                0,
+                self.rect.height / 2 - self.__labelSurface.get_rect().height / 2
+            ])
+        elif self.anchor == 'right':
+            self.surface.blit(self.__labelSurface, [
+                self.rect.width - self.__labelSurface.get_rect().width,
+                self.rect.height / 2 - self.__labelSurface.get_rect().height / 2
+            ])
         self.draw()
