@@ -1,5 +1,6 @@
 import pygame
 import sys
+import asyncio
 
 from scenes.scene import Scene
 
@@ -67,6 +68,14 @@ class Register_Scene(Scene):
             password_input.text = "*" * len(password_input.textvariable)
             # password_input.process(None)
 
+    async def __async_registration(self, email: str, name: str, password: str, error_label: Label, scene_params: list) -> None:
+        await self.client.account_registration(email, name, password, error_label, self, scene_params)
+
+    async def __start_async_registration(self, email: str, name: str, password: str, error_label: Label, scene_params: list) -> None:
+        task = asyncio.create_task(self.__async_registration(email, name, password, error_label, scene_params))
+
+        await task
+
     def main(self) -> None:
         print(">> Запуск Запуск сцены регистрации")
         """ Главная функция """
@@ -87,12 +96,11 @@ class Register_Scene(Scene):
         self.objects.append(error_label)
 
         self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 710, 400, 80, 'Подтвердить', 50, (255, 255, 255), 
-                                        function = lambda: self.client.account_registration(email_input.textvariable, 
+                                        function = lambda: asyncio.run(self.__start_async_registration(email_input.textvariable, 
                                         user_name_input.textvariable, 
                                         passwrod_input.textvariable,
                                         error_label,
-                                        self,
-                                        [self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, "../src/imgs/main_bg.png"]), 
+                                        [self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, "../src/imgs/main_bg.png"])), 
                                         imagePath="../src/imgs/btn.png"))
         
         self.objects.append(CheckBox(self.screen, (self.screen.get_width() / 2 + 305), 580, 50, 50, function = lambda: self.change_pass_vision(passwrod_input)))

@@ -11,6 +11,7 @@ from widgets.label import Label
 
 from scenes.MainGameScrene import MainGameScene
 from scenes.singin import SignInScene
+from scenes.register import Register_Scene
 from scenes.ConfirmCodeScene import ConfirmCode_scene
 
 """ добавляет родительский каталог текущего скрипта в начало системного пути (sys.path). Это позволяет скрипту импортировать модули из родительского каталога. """
@@ -51,10 +52,10 @@ class Client:
 
         try:
             self.socket_peer.connect(remote_address[0][4])
+            print(">> Connected.")
         except BlockingIOError:
             pass  # Non-blocking connect will raise this error initially
 
-        print(">> Connected.")
         print(">> Waiting for data...")
         # Main loop where we wait for data to be received from the server
         while self.run:
@@ -132,7 +133,7 @@ class Client:
             error_label.set_text("Не удалось выполнить запрос: code -1")
             return
     
-    def account_registration(self, email: str, name: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list) -> None:
+    def account_registration(self, email: str, name: str, password: str, error_label: Label, register_scene: Register_Scene, scene_params: list) -> None:
         """ Метод для регистрации пользователя """
         response_flags = parse_yaml_config("../src/client/flags.yaml")
         operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
@@ -199,7 +200,7 @@ class Client:
 
                     if len(str(self.recv_data.decode("utf-8"))) == 6:
                         confirm_code = self.recv_data.decode("utf-8")
-                        signin_scene.run = False
+                        register_scene.run = False
                         confirm_code_scene = ConfirmCode_scene(screen=scene_params[0], settings=scene_params[1], 
                                                         client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5], sent_code=confirm_code, email=email)
                         confirm_code_scene.main()
