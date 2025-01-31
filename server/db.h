@@ -41,7 +41,9 @@ typedef enum {
     UNCORRECT_PASSWORD
 } REGISTRATION_STATUS; //* Отправляем пользователю
 
-
+typedef enum {
+    CONFIRM_CODE_SUCCESS = 30,
+} CODE_STATUS; //* Отправляем пользователю
 
 void connect_to_db(void);
 int account_signin(char** data_string);

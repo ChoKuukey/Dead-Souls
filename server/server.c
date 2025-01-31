@@ -178,7 +178,7 @@ int main(void) {
                         printf(">> Confrim code: %s\n", code);
                         int send_res = send_confirm_code(data, code);
                         if (send_res == QUERY_SUCCESS) {
-                            snprintf(result_buffer, MAX_RESULT_LENGTH, "%s", code);
+                            snprintf(result_buffer, MAX_RESULT_LENGTH, "%s %d", code, CONFIRM_CODE_SUCCESS);
                             result_buffer[MAX_RESULT_LENGTH] = '\0';
                             if (result_buffer == NULL) {
                                 fprintf(stderr, ">> Failed to allocate memory for result buffer\n");

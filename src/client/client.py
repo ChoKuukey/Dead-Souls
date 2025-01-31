@@ -6,6 +6,7 @@ import time
 import os
 import sys
 import pygame
+import threading
 
 from widgets.label import Label
 
@@ -76,6 +77,12 @@ class Client:
                     if self.recv_data:
                         # Print out the received data and its length
                         print(f">> Received: {self.recv_data.decode('utf-8')} len: {len(self.recv_data.decode('utf-8'))}")
+
+                        # Во время регистрации, ждём подтверждения кода регистрации
+                        # Костыль
+                        if len(str(self.recv_data.decode('utf-8'))) == 9 and int(str(self.recv_data.decode('utf-8'))[7:9]) == 30:
+                            print(">> Запуск сцены подтверждения кода регистрации")
+                            # self.__run_confirm_code_scene(str(self.recv_data.decode('utf-8')))
                     else:
                         # If we didn't receive any data, print a message and return
                         print(">> No data received.")
@@ -132,7 +139,19 @@ class Client:
             print(">> No data sent.")
             error_label.set_text("Не удалось выполнить запрос: code -1")
             return
-    
+    def __run_confirm_code_scene(self, email: str, sent_code: str, scene_params: list) -> None:
+            confirm_code_scene = ConfirmCode_scene(
+                screen=scene_params[0], 
+                settings=scene_params[1], 
+                client=scene_params[2], 
+                db=scene_params[3], 
+                db_config=scene_params[4], 
+                bg=scene_params[5], 
+                sent_code=sent_code, 
+                email=email
+            )
+            confirm_code_scene.main()
+
     def account_registration(self, email: str, name: str, password: str, error_label: Label, register_scene: Register_Scene, scene_params: list) -> None:
         """ Метод для регистрации пользователя """
         response_flags = parse_yaml_config("../src/client/flags.yaml")
@@ -191,23 +210,12 @@ class Client:
                 
                 if send_data:
                     print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
-                    
-                    while len(str(self.recv_data.decode("utf-8"))) < 6:
-                        if len(str(self.recv_data.decode("utf-8"))) == 6:
-                            break
-
-                    print(f">> Recived data from server: {self.recv_data.decode('utf-8')} size: {len(self.recv_data.decode('utf-8'))}")
-
-                    if len(str(self.recv_data.decode("utf-8"))) == 6:
-                        confirm_code = self.recv_data.decode("utf-8")
-                        register_scene.run = False
-                        confirm_code_scene = ConfirmCode_scene(screen=scene_params[0], settings=scene_params[1], 
-                                                        client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5], sent_code=confirm_code, email=email)
-                        confirm_code_scene.main()
+                        
             elif int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
                 print(">> Неизвестная ошибка")
                 error_label.set_text("Неизвестная ошибка")
                 return   
+                
                 
         else:
             print(">> No data sent.")
