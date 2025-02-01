@@ -9,6 +9,14 @@
 #include<windows.h>
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#define SLEEP(ms) Sleep(ms)
+#else
+#include <unistd.h>
+#define SLEEP(ms) usleep((ms) * 1000)
+#endif
+
 
 int main(void) {
     // Set the locale to UTF-8
@@ -167,10 +175,6 @@ int main(void) {
                         //* Авторизация пользователя
                         puts(">> Starting account signin");
                         result = account_signin(data);
-                    } else if (atoi(data[data_count - 1]) == ACCOUNT_ACTIVATION) {
-                        //* Активация аккаунта пользователя
-                        printf(">> Starting account activation. User: \n%s", data[0]);
-                        result = account_activation(data);
                     } else if (atoi(data[data_count - 1]) == CONFIRM_CODE) {
                         //* Отправка кода подтверждения на почту пользователя
                         puts(">> Starting confirm code");
@@ -195,6 +199,10 @@ int main(void) {
                             // Sleep(200);
                             continue;
                         }
+                    } else if (atoi(data[data_count - 1]) == ACCOUNT_ACTIVATION) {
+                        //* Активация аккаунта пользователя
+                        printf(">> Starting account activation. User: %s\n", data[0]);
+                        result = account_activation(data);
                     }
                     
 

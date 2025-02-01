@@ -37,6 +37,8 @@ class Register_Scene(Scene):
         self.bg = None
         self.scaledimage = None
 
+        self.confirm_code_scene = ConfirmCode_scene(screen, settings, client, db, db_config, bg="../src/imgs/cool_bg.png")
+
         if isinstance(bg, str):
             try:
                 self.bg = pygame.image.load(bg).convert_alpha()
@@ -94,7 +96,7 @@ class Register_Scene(Scene):
                                         passwrod_input.textvariable,
                                         error_label,
                                         self,
-                                        [self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, "../src/imgs/main_bg.png"],), 
+                                        [self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, "../src/imgs/main_bg.png"]), 
                                         imagePath="../src/imgs/btn.png"))
         
         self.objects.append(CheckBox(self.screen, (self.screen.get_width() / 2 + 305), 580, 50, 50, function = lambda: self.change_pass_vision(passwrod_input)))

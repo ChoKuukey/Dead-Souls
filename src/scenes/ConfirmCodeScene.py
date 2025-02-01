@@ -28,8 +28,8 @@ class ConfirmCode_scene(Scene):
         super().__init__(screen, settings, client)
         self.__DB = db
         self.__DB_CONFIG = db_config
-        self.__SENT_CODE = sent_code
-        self.__EMAIL = email # почта пользователя, которую нужно активировать
+        self.sent_code = sent_code
+        self.email = email # почта пользователя, которую нужно активировать
         self.objects = []
     
         self.bg = None
@@ -60,12 +60,16 @@ class ConfirmCode_scene(Scene):
 
             scene_params = [self.screen, self.settings, self.__DB, self.__DB_CONFIG]
             
-            self.client.activate_user_account(self.__EMAIL, self, error_label, scene_params)
+            self.client.activate_user_account(self.email, self, error_label, scene_params)
 
 
     def main(self) -> None:
         print(">> Запуск Сцены подтверждения кода")
+        print(f">> Код: {self.sent_code}")
         self.run = True
+
+        # self.sent_code = self.client.data_tokens[0]
+        # print(f">> Код: {self.sent_code}")
 
         label = Label(self.screen, (self.screen.get_width() / 2 - 400), (self.screen.get_height() / 2 - 150), 800, 50, 40, "Введите код потверждения с почты", (255, 255, 255))
 
@@ -75,7 +79,7 @@ class ConfirmCode_scene(Scene):
         error_label = Label(self.screen, 0, (self.screen.get_height() / 2 + 40), self.screen.get_width(), 50, 40, "", (178,34,34))
 
         accept_button = ImageButton(self.screen, (self.screen.get_width() / 2 - 150), (self.screen.get_height() / 2 + 80), 300, 50, "Подтвердить", 20, (255, 255, 255), 
-                                    lambda: self.confrim_registration(code_enter.text, self.__SENT_CODE, error_label), True, imagePath="../src/imgs/btn.png")
+                                    lambda: self.confrim_registration(code_enter.text, self.sent_code, error_label), True, imagePath="../src/imgs/btn.png")
 
         self.objects.append(label)
         self.objects.append(code_enter)

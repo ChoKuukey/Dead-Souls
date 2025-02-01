@@ -25,20 +25,19 @@ pygame.init()
 fpsClock = pygame.time.Clock()
 
 class Client:
-    def __init__(self, scene_params):
+    def __init__(self):
         self.run = True
         self.socket_peer = None
         self.recv_data = None
+        self.data_tokens = []
 
-        self.scene_params = scene_params
-
-    def __parse_data_string(data_string: str):
+    def __parse_data_string(self, data_string: str):
         """ Парсит строку данных от сервера на токены """
-        tokens: list = []
+        data_tokens: list = []
 
-        tokens = data_string.split(' ')
+        data_tokens = data_string.split(' ')
 
-        return tokens
+        return data_tokens
 
     def connect_to_server(self, server, port):
         try:
@@ -90,10 +89,9 @@ class Client:
 
                         # Во время регистрации, ждём подтверждения кода регистрации
                         # Костыль
-                        tokens = self.__parse_data_string(str(self.recv_data.decode("utf-8")))
-                        if len(tokens) == 3 and int(tokens[2]) == 30:
-                            print(">> Запуск сцены подтверждения кода регистрации")
-                            self.__run_confirm_code_scene(tokens[0], tokens[1], self.scene_params)
+                        self.data_tokens = self.__parse_data_string(str(self.recv_data.decode("utf-8")))
+                        print(f">> tokens: {self.data_tokens}")
+                            
                     else:
                         # If we didn't receive any data, print a message and return
                         print(">> No data received.")
@@ -150,19 +148,6 @@ class Client:
             print(">> No data sent.")
             error_label.set_text("Не удалось выполнить запрос: code -1")
             return
-        
-    def __run_confirm_code_scene(self, email: str, sent_code: str, scene_params: list) -> None:
-            confirm_code_scene = ConfirmCode_scene(
-                screen=scene_params[0], 
-                settings=scene_params[1], 
-                client=self, 
-                db=scene_params[3], 
-                db_config=scene_params[4], 
-                bg="../src/imgs/cool_bg.png", 
-                sent_code=sent_code, 
-                email=email
-            )
-            confirm_code_scene.main()
 
     def account_registration(self, email: str, name: str, password: str, error_label: Label, register_scene: Register_Scene, scene_params: list) -> None:
         """ Метод для регистрации пользователя """
@@ -185,7 +170,7 @@ class Client:
 
         if send_data:
             print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
-            time.sleep(0.2)
+            time.sleep(0.5)
 
             # Почта существует
             if int(self.recv_data.decode("utf-8")) == registration_flags["EMAIL_EXIST"]:
@@ -222,6 +207,14 @@ class Client:
                 
                 if send_data:
                     print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
+
+                    while len(self.data_tokens[0]) < 6:
+                        if len(self.data_tokens[0]) == 6:
+                            break
+
+
+                    confirm_code_scene = ConfirmCode_scene(scene_params[0], scene_params[1], self, scene_params[3], scene_params[4], "../src/imgs/cool_bg.png", sent_code=self.data_tokens[0], email=self.data_tokens[1],)
+                    confirm_code_scene.main()
                         
             elif int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
                 print(">> Неизвестная ошибка")
