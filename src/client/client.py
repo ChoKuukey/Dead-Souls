@@ -25,10 +25,20 @@ pygame.init()
 fpsClock = pygame.time.Clock()
 
 class Client:
-    def __init__(self):
+    def __init__(self, scene_params):
         self.run = True
         self.socket_peer = None
         self.recv_data = None
+
+        self.scene_params = scene_params
+
+    def __parse_data_string(data_string: str):
+        """ Парсит строку данных от сервера на токены """
+        tokens: list = []
+
+        tokens = data_string.split(' ')
+
+        return tokens
 
     def connect_to_server(self, server, port):
         try:
@@ -80,9 +90,10 @@ class Client:
 
                         # Во время регистрации, ждём подтверждения кода регистрации
                         # Костыль
-                        if len(str(self.recv_data.decode('utf-8'))) == 9 and int(str(self.recv_data.decode('utf-8'))[7:9]) == 30:
+                        tokens = self.__parse_data_string(str(self.recv_data.decode("utf-8")))
+                        if len(tokens) == 3 and int(tokens[2]) == 30:
                             print(">> Запуск сцены подтверждения кода регистрации")
-                            # self.__run_confirm_code_scene(str(self.recv_data.decode('utf-8')))
+                            self.__run_confirm_code_scene(tokens[0], tokens[1], self.scene_params)
                     else:
                         # If we didn't receive any data, print a message and return
                         print(">> No data received.")
@@ -139,14 +150,15 @@ class Client:
             print(">> No data sent.")
             error_label.set_text("Не удалось выполнить запрос: code -1")
             return
+        
     def __run_confirm_code_scene(self, email: str, sent_code: str, scene_params: list) -> None:
             confirm_code_scene = ConfirmCode_scene(
                 screen=scene_params[0], 
                 settings=scene_params[1], 
-                client=scene_params[2], 
+                client=self, 
                 db=scene_params[3], 
                 db_config=scene_params[4], 
-                bg=scene_params[5], 
+                bg="../src/imgs/cool_bg.png", 
                 sent_code=sent_code, 
                 email=email
             )
