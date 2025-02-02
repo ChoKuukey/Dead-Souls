@@ -10,4 +10,4 @@ def parse_data_string(data_string: str):
 data: str = "GH4TR5 example@gmail.com 30"
 
 tokens = parse_data_string(data)
-print(len(tokens))
+print(tokens[-1])

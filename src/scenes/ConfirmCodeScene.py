@@ -86,7 +86,7 @@ class ConfirmCode_scene(Scene):
         self.objects.append(error_label)
         self.objects.append(accept_button)
 
-        while self.run:
+        while self.run:           
             if isinstance(self.scaledimage, pygame.surface.Surface):
                 self.screen.blit(self.scaledimage, (0, 0))
             else:
@@ -99,7 +99,7 @@ class ConfirmCode_scene(Scene):
                     self.run = False
             
             for object in self.objects:
-                    object.process(self.event)
+                object.process(self.event)
             
 
             pygame.display.flip()

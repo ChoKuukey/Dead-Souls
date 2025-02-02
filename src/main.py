@@ -31,9 +31,11 @@ __DB = None
 __SCREEN = pygame.display.set_mode(((__SETTINGS['screen_size'][0]), __SETTINGS['screen_size'][1]))
 pygame.display.set_caption('Dead Souls')
 
+scene_params = [__SCREEN, __SETTINGS, __DB, __DB_CONFIG]
+
 if __name__ == '__main__':
     client = Client()
-
+    client.scene_params = scene_params
 
     client_thread = threading.Thread(target=client.connect_to_server, args=("89.189.179.132", 8623))
     client_thread.daemon = True

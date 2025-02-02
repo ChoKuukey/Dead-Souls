@@ -31,6 +31,17 @@ class Client:
         self.recv_data = None
         self.data_tokens = []
 
+        self.scene_params: list = []
+
+        self.help_thread = None
+        self.help_event = threading.Event()
+
+        self.main_menu_scene = None
+        self.register_scene= None
+        self.signin_scene = None
+        self.settings_scene = None
+        self.confirm_code_scene = None
+
     def __parse_data_string(self, data_string: str):
         """ Парсит строку данных от сервера на токены """
         data_tokens: list = []
@@ -91,7 +102,7 @@ class Client:
                         # Костыль
                         self.data_tokens = self.__parse_data_string(str(self.recv_data.decode("utf-8")))
                         print(f">> tokens: {self.data_tokens}")
-                            
+                        
                     else:
                         # If we didn't receive any data, print a message and return
                         print(">> No data received.")
@@ -148,6 +159,15 @@ class Client:
             print(">> No data sent.")
             error_label.set_text("Не удалось выполнить запрос: code -1")
             return
+        
+    def run_confirm_code_scene(self):
+        while len(self.data_tokens[0]) < 6:
+            if len(self.data_tokens[0]) == 6:
+                break
+        
+        print(">> Код подтверждения отправлен")
+        self.register_scene.run = False
+        # self.help_event.set()
 
     def account_registration(self, email: str, name: str, password: str, error_label: Label, register_scene: Register_Scene, scene_params: list) -> None:
         """ Метод для регистрации пользователя """
@@ -207,14 +227,24 @@ class Client:
                 
                 if send_data:
                     print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
+                    error_label.set_text("Пожалуйста, подождите...")
+                    # self.help_event.clear()
+                    self.help_thread = threading.Thread(target=self.run_confirm_code_scene, args=(), name="Dead-Souls-Client")
+                    self.help_thread.daemon = True
+                    self.help_thread.start()
+                    
 
-                    while len(self.data_tokens[0]) < 6:
-                        if len(self.data_tokens[0]) == 6:
-                            break
+                    # # Wait for the thread to signal completion
+                    # self.help_event.wait()
 
+                    # # Непосредственно вызывать run_confirm_code_scene после запуска потока
+                    # self.confirm_code_scene = ConfirmCode_scene(
+                    #     scene_params[0], scene_params[1], self, 
+                    #     scene_params[3], scene_params[4], 
+                    #     "../src/imgs/cool_bg.png", sent_code=self.data_tokens[0], email=self.data_tokens[1]
+                    # )
+                    # self.confirm_code_scene.main()
 
-                    confirm_code_scene = ConfirmCode_scene(scene_params[0], scene_params[1], self, scene_params[3], scene_params[4], "../src/imgs/cool_bg.png", sent_code=self.data_tokens[0], email=self.data_tokens[1],)
-                    confirm_code_scene.main()
                         
             elif int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
                 print(">> Неизвестная ошибка")
