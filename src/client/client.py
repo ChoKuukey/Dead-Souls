@@ -75,7 +75,7 @@ class Client:
             self.socket_peer.connect(remote_address[0][4])
             print(">> Connected.")
         except BlockingIOError:
-            pass  # Non-blocking connect will raise this error initially
+            pass  # Неблокирующее соединение изначально поднимет эту ошибку
 
         print(">> Waiting for data...")
         # Main loop where we wait for data to be received from the server
@@ -102,7 +102,16 @@ class Client:
                         # Костыль
                         self.data_tokens = self.__parse_data_string(str(self.recv_data.decode("utf-8")))
                         print(f">> tokens: {self.data_tokens}")
-                        
+
+                        if len(self.data_tokens) == 3 and self.data_tokens[-1] == '30':
+                            # Записываем код подтверждения в файл
+                            try:
+                                with open("../src/client/code.txt", "w") as code_file:
+                                    code_file.write(self.data_tokens[0])
+                            except FileNotFoundError:
+                                print(">> Не удалось найти файл кода подтверждения") 
+                            
+                            print(">> Код подтверждения записан в файл")
                     else:
                         # If we didn't receive any data, print a message and return
                         print(">> No data received.")
@@ -167,7 +176,6 @@ class Client:
         
         print(">> Код подтверждения отправлен")
         self.register_scene.run = False
-        # self.help_event.set()
 
     def account_registration(self, email: str, name: str, password: str, error_label: Label, register_scene: Register_Scene, scene_params: list) -> None:
         """ Метод для регистрации пользователя """
@@ -228,22 +236,20 @@ class Client:
                 if send_data:
                     print(f">> Sent: '{query_string}' to server to registration operation, size sent data: {send_data}")
                     error_label.set_text("Пожалуйста, подождите...")
-                    # self.help_event.clear()
+
                     self.help_thread = threading.Thread(target=self.run_confirm_code_scene, args=(), name="Dead-Souls-Client")
                     self.help_thread.daemon = True
                     self.help_thread.start()
-                    
-
-                    # # Wait for the thread to signal completion
-                    # self.help_event.wait()
 
                     # # Непосредственно вызывать run_confirm_code_scene после запуска потока
-                    # self.confirm_code_scene = ConfirmCode_scene(
-                    #     scene_params[0], scene_params[1], self, 
-                    #     scene_params[3], scene_params[4], 
-                    #     "../src/imgs/cool_bg.png", sent_code=self.data_tokens[0], email=self.data_tokens[1]
-                    # )
-                    # self.confirm_code_scene.main()
+                    confirm_code_scene = ConfirmCode_scene(
+                        scene_params[0], scene_params[1], self, 
+                        scene_params[3], scene_params[4], 
+                        "../imgs/cool_bg.png", 
+                        sent_code=None, 
+                        email=email
+                    )
+                    confirm_code_scene.main()
 
                         
             elif int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:

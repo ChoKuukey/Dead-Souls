@@ -38,10 +38,10 @@ class ConfirmCode_scene(Scene):
         if isinstance(bg, str):
             try:
                 self.bg = pygame.image.load(bg).convert_alpha()
-                self.scaledimage = pygame.transform.scale(self.bg, (settings['screen_size'][0], settings['screen_size'][1]))
+                self.scaledimage = pygame.transform.scale(self.bg, (settings['screen_size'][0], settings['screen_size'][1])) 
             except FileNotFoundError:
                 print(">> Не удалось загрузить фоновое изображение")
-            else:
+            else: 
                 self.bg = (0, 0, 0)
         elif isinstance(bg, tuple):
             self.bg = bg
@@ -50,13 +50,19 @@ class ConfirmCode_scene(Scene):
             self.bg = (0, 0, 0)
 
     def confrim_registration(self, code: str, send_code: str, error_label: Label) -> None:
-        if code != send_code:
+        if code != send_code or send_code == None:
             print(">> Код не подтвержден")
             error_label.set_text("Неправильный код")
             return
         else:
             print(">> Код подтвержден")
             """ обновление is_active у учетки """
+
+            try:
+                with open("../src/client/code.txt", "w") as code_file:
+                    code_file.write("")
+            except FileNotFoundError:
+                print(">> Не удалось найти файл кода подтверждения")
 
             scene_params = [self.screen, self.settings, self.__DB, self.__DB_CONFIG]
             
@@ -65,7 +71,6 @@ class ConfirmCode_scene(Scene):
 
     def main(self) -> None:
         print(">> Запуск Сцены подтверждения кода")
-        print(f">> Код: {self.sent_code}")
         self.run = True
 
         # self.sent_code = self.client.data_tokens[0]
@@ -86,11 +91,20 @@ class ConfirmCode_scene(Scene):
         self.objects.append(error_label)
         self.objects.append(accept_button)
 
-        while self.run:           
+        while self.run:  
             if isinstance(self.scaledimage, pygame.surface.Surface):
                 self.screen.blit(self.scaledimage, (0, 0))
             else:
-                self.screen.fill((0, 0, 0))
+                self.screen.fill((0, 0, 0))         
+            try:
+                with open("../src/client/code.txt", "r+") as code_file:
+                    data = code_file.read()
+                    if len(data) == 6:
+                        self.sent_code = data
+                    else:
+                        self.sent_code = None
+            except FileNotFoundError:
+                print(">> Не удалось найти файл кода подтверждения")
             for event in pygame.event.get():
                 self.event = event
                 if event.type == pygame.QUIT:

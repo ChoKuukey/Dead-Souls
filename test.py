@@ -1,13 +1,14 @@
-def parse_data_string(data_string: str):
-    """ Парсит строку данных от сервера на токены """
-    tokens: list = []
+from flask import Flask
 
-    tokens = data_string.split(' ')
+app = Flask(__name__)
 
-    return tokens
+@app.route("/")
+def hello_world():
+    return """
+    <p>Hello, World!</p>
+    <h1>Сева какашка</h1>
 
+    """
 
-data: str = "GH4TR5 example@gmail.com 30"
-
-tokens = parse_data_string(data)
-print(tokens[-1])
+if __name__ == "__main__":
+    app.run(host="192.168.3.123", port=5000)
