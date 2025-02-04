@@ -72,16 +72,16 @@ class MainScene(Scene):
         print(">> Запуск Dead Souls")
 
         self.run = True
-        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 520), (self.screen.get_height() - self.screen.get_height() / 2 - 200), 
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 490), (self.screen.get_height() - self.screen.get_height() / 2 - 200), 
                                         400, 112, 'Войти', 50, (255, 255, 255), lambda: self.__run_autorization_scene(), imagePath = "../src/imgs/btn.png"))
         
-        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 520), (self.screen.get_height() - self.screen.get_height() / 2 - 80), 
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 490), (self.screen.get_height() - self.screen.get_height() / 2 - 80), 
                                         400, 112, 'Регистрация', 50, (255, 255, 255), lambda: self.__run_registration_scene(), imagePath = "../src/imgs/btn.png"))
         
-        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 520), (self.screen.get_height() - self.screen.get_height() / 2 + 40), 
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 490), (self.screen.get_height() - self.screen.get_height() / 2 + 40), 
                                         400, 112, 'Настройки', 50, (255, 255, 255), lambda: self.__run_settings_scene(), imagePath = "../src/imgs/btn.png"))
         
-        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 520), (self.screen.get_height() - self.screen.get_height() / 2 + 160), 
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() - self.screen.get_width() / 2 + 490), (self.screen.get_height() - self.screen.get_height() / 2 + 160), 
                                         400, 112, 'Выход', 50, (255, 255, 255), lambda: self.__exit_game(), imagePath = "../src/imgs/btn.png"))
 
         print(">> Приложение запущено...")

@@ -158,7 +158,7 @@ class Client:
             elif int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
                 print(">> Авторизация прошла успешно")
                 signin_scene.run = False
-                main_game_scene = MainGameScene(screen=scene_params[0], settings=scene_params[1], client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg=scene_params[5])
+                main_game_scene = MainGameScene(screen=scene_params[0], settings=scene_params[1], client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg="../src/imgs/main_game_scene.png")
                 main_game_scene.main()
             # Пользователь не найден
             elif int(self.recv_data.decode("utf-8")) == response_flags["EXCEPTION"]:
@@ -294,7 +294,7 @@ class Client:
 
                 confirm_code_scene.run = False
 
-                maim_game_scene = MainGameScene(scene_params[0], scene_params[1], self, scene_params[2], scene_params[3], "../src/imgs/main_bg.png")
+                maim_game_scene = MainGameScene(scene_params[0], scene_params[1], self, scene_params[2], scene_params[3], "../src/imgs/main_menu_scene.png")
                 maim_game_scene.main()
 
         else:

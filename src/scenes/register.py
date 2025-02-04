@@ -76,20 +76,20 @@ class Register_Scene(Scene):
         email_input = ImageTextInput(self.screen, (self.screen.get_width() / 2 - 300), 330, 600, 80, "Почта", 28, (255, 255, 255), imagePath="../src/imgs/textinput.png", length = 30)
         user_name_input = ImageTextInput(self.screen, (self.screen.get_width() / 2 - 300), 450, 600, 80, "Имя", 28, (255, 255, 255), imagePath="../src/imgs/textinput.png", length = 20)
         passwrod_input = ImageTextInput(self.screen, (self.screen.get_width() / 2 - 300), 570, 600, 80, "Пароль", 28, (255, 255, 255), imagePath="../src/imgs/textinput.png", passt = True, length = 35)
-        error_label = Label(self.screen, 0, 660, self.screen.get_width(), 50, 40, "Пожалуйста, перед отправкой, проверье данные", textColor = (178,34,34), bg_alpha = 0)
+        error_label = Label(self.screen, 0, 660, self.screen.get_width(), 50, 40, "Пожалуйста, перед отправкой, проверье данные", textColor = (178,34,34), bg_alpha = 255)
         
         self.run = True
 
-        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 160), 220, 320, 50, 50, 'Регистрация', textColor = (255, 255, 255), bg_alpha = 0, anchor='center'))
-        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 300), 290, 600, 50, 30, 'Почта', textColor = (255, 255, 255), bg_alpha = 0, anchor='left'))
+        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 160), 220, 320, 50, 50, 'Регистрация', textColor = (255, 255, 255), bg_alpha = 255, anchor='center'))
+        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 300), 290, 600, 50, 30, 'Почта', textColor = (255, 255, 255), bg_alpha = 255, anchor='left'))
         self.objects.append(email_input)
-        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 300), 410, 600, 50, 30, 'Имя', textColor = (255, 255, 255), bg_alpha = 0, anchor='left'))
+        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 300), 410, 600, 50, 30, 'Имя', textColor = (255, 255, 255), bg_alpha = 255, anchor='left'))
         self.objects.append(user_name_input)
-        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 300), 530, 600, 50, 30, 'Пароль', textColor = (255, 255, 255), bg_alpha = 0, anchor='left'))
+        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 300), 530, 600, 50, 30, 'Пароль', textColor = (255, 255, 255), bg_alpha = 255, anchor='left'))
         self.objects.append(passwrod_input)
         self.objects.append(error_label)
 
-        self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 710, 400, 80, 'Подтвердить', 50, (255, 255, 255), 
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 300), 710, 390, 80, 'Подтвердить', 50, (255, 255, 255), 
                                         function = lambda: self.client.account_registration(
                                         email_input.textvariable, 
                                         user_name_input.textvariable, 
@@ -100,7 +100,7 @@ class Register_Scene(Scene):
                                         imagePath="../src/imgs/btn.png"))
         
         self.objects.append(CheckBox(self.screen, (self.screen.get_width() / 2 + 305), 580, 50, 50, function = lambda: self.change_pass_vision(passwrod_input)))
-        self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 810, 190, 70, 'Назад', 45, (255, 255, 255), self.__back, imagePath="../src/imgs/btn.png"))
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 + 110), 710, 190, 80, 'Назад', 45, (255, 255, 255), self.__back, imagePath="../src/imgs/btn.png"))
 
         # self.objects.append(confirm_code_input)
 

@@ -70,17 +70,17 @@ class SignInScene(Scene):
         """ Главная функция """
         email_input = ImageTextInput(self.screen, (self.screen.get_width() / 2 - 300), 330, 600, 80, "Почта", 28, (255, 255, 255), imagePath="../src/imgs/textinput.png", length = 30)
         passwrod_input = ImageTextInput(self.screen, (self.screen.get_width() / 2 - 300), 450, 600, 80, "Пароль", 28, (255, 255, 255), imagePath="../src/imgs/textinput.png", passt = True, length = 35)
-        error_label = Label(self.screen, 0, 540, self.screen.get_width(), 50, 40, "", textColor = (178,34,34), bg_alpha = 0)
+        error_label = Label(self.screen, 0, 540, self.screen.get_width(), 50, 40, "", textColor = (178,34,34), bg_alpha = 255)
         
         self.run = True
 
-        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 250), 220, 500, 50, 50, 'Войти в аккаунт', textColor = (255, 255, 255), bg_alpha = 0))
-        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 300), 290, 300, 50, 30, 'Почта', textColor = (255, 255, 255), bg_alpha = 0, anchor = "left"))
+        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 250), 220, 500, 50, 50, 'Войти в аккаунт', textColor = (255, 255, 255), bg_alpha = 255))
+        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 300), 290, 300, 50, 30, 'Почта', textColor = (255, 255, 255), bg_alpha = 255, anchor = "left"))
         self.objects.append(email_input)
-        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 300), 410, 300, 50, 30, 'Пароль', textColor = (255, 255, 255), bg_alpha = 0, anchor = "left"))
+        self.objects.append(Label(self.screen, (self.screen.get_width() / 2 - 300), 410, 300, 50, 30, 'Пароль', textColor = (255, 255, 255), bg_alpha = 255, anchor = "left"))
         self.objects.append(passwrod_input)
         self.objects.append(error_label)
-        self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 590, 400, 80, 'Подтвердить', 50, (255, 255, 255), 
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 300), 590, 390, 80, 'Подтвердить', 50, (255, 255, 255), 
                                         function = lambda: self.client.account_enter(email_input.textvariable, 
                                                                                      passwrod_input.textvariable, 
                                                                                      error_label, 
@@ -88,7 +88,7 @@ class SignInScene(Scene):
                                                                                      [self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, "../src/imgs/main_bg.png"]),
                                         imagePath="../src/imgs/btn.png"))
         self.objects.append(CheckBox(self.screen, (self.screen.get_width() / 2 + 305), 460, 50, 50, function = lambda: self.change_pass_vision(passwrod_input)))
-        self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 - 200), 690, 190, 70, 'Назад', 45, (255, 255, 255), self.__back, imagePath="../src/imgs/btn.png"))
+        self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 + 110), 590, 190, 80, 'Назад', 45, (255, 255, 255), self.__back, imagePath="../src/imgs/btn.png"))
 
         # self.objects.append(confirm_code_input)
 

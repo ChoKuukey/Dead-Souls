@@ -10,6 +10,9 @@ from widgets.button import (
     ImageButton
 )
 
+from widgets.label import ImageLabel
+from widgets.label import Label
+
 
 pygame.init()
 
@@ -49,7 +52,12 @@ class MainGameScene(Scene):
 
         self.run = True
 
-        self.objects.append(ImageButton(self.screen, 30, 330, 325, 110, 'Выход', 50, (255, 255, 255), lambda: self.__exit_game(), imagePath = "../src/imgs/btn.png"))
+        self.money_count_widget = ImageLabel(self.screen, 1550, 185, 120, 40, 0, "", (0, 0, 0), 0, 'center', "../src/imgs/money_count.png")
+        self.money_count_label = Label(self.screen, 1510, 188, 120, 40, 33, "0", (255, 255, 255), 255, 'right')
+
+        self.objects.append(self.money_count_widget)
+        self.objects.append(self.money_count_label)
+        # self.objects.append(ImageButton(self.screen, 30, 330, 325, 110, 'Выход', 50, (255, 255, 255), lambda: self.__exit_game(), imagePath = "../src/imgs/btn.png"))
         
         print(">> Запуск Основной игровой сцены")
 
