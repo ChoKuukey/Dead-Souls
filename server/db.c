@@ -70,7 +70,9 @@ void connect_to_db(void) {
         is_dev boolean NOT NULL DEFAULT FALSE, \
         created_at timestamp without time zone, \
         updated_at timestamp without time zone, \
-        is_active boolean NOT NULL DEFAULT FALSE);", db_config[4]);
+        is_active boolean NOT NULL DEFAULT FALSE, \
+        money_count INTEGER NOT NULL DEFAULT 0, \
+        floppy_disk_count INTEGER NOT NULL DEFAULT 0);", db_config[4]);
 
     PGresult *users_res = PQexecParams(conn, create_users_table, 0, NULL, NULL, NULL, NULL, 0);
 
@@ -354,4 +356,42 @@ int account_activation(char** data_string) {
     puts("\n");
 
     return QUERY_SUCCESS;
+}
+
+int get_account_name(char** data_string) {
+    //* Получаем имя пользователя по почте
+    char** db_config = get_db_config();
+
+    char* email = data_string[0];
+
+    if (email == NULL) {
+        fprintf(stderr, ">> Email is NULL in account_activation\n");
+        return QUERY_ERROR;
+    }
+
+    char query[MAX_SQL_QUERY_LENGTH];
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT name FROM %s WHERE email = '%s';", db_config[4], email);
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+
+    // Проверка выполнения запроса
+    if (PQresultStatus(res)!= PGRES_COMMAND_OK) {
+        fprintf(stderr, "Query failed:%s\n", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+        return QUERY_ERROR;
+    }
+    int rows = PQntuples(res);
+    char* name;
+    if (rows == 0 || PQgetvalue(res, 0, 0) == NULL) {
+        char* name = PQgetvalue(res, 0, 0);
+        // PQclear(res);
+    } else {
+        return QUERY_ERROR;
+        
+    }
+
+    printf(">> Successfully get user's name from email. User: %s\n", email);
+    puts("\n");
+
+    return name;
 }

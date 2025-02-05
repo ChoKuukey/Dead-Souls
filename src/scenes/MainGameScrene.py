@@ -21,7 +21,7 @@ fpsClock = pygame.time.Clock()
 class MainGameScene(Scene):
     """ Модуль главного игрового экрана """
 
-    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str | tuple = None) -> None:
+    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str | tuple = None, user: str = "example_user") -> None:
         super().__init__(screen, settings, client)
         self.__DB = db
         self.__DB_CONFIG = db_config
@@ -29,6 +29,8 @@ class MainGameScene(Scene):
 
         self.bg = None
         self.scaledimage = None
+
+        self.user = user
 
         if isinstance(bg, str):
             try:
@@ -53,10 +55,17 @@ class MainGameScene(Scene):
         self.run = True
 
         self.money_count_widget = ImageLabel(self.screen, 1550, 185, 120, 40, 0, "", (0, 0, 0), 0, 'center', "../src/imgs/money_count.png")
-        self.money_count_label = Label(self.screen, 1510, 188, 120, 40, 33, "0", (255, 255, 255), 255, 'right')
+        self.money_count_label = Label(self.screen, 1512, 188, 120, 40, 25, "0", (255, 255, 255), 255, 'right')
+
+        self.floppy_disk_count_widget = ImageLabel(self.screen, 1350, 185, 120, 40, 0, "", (0, 0, 0), 0, 'center', "../src/imgs/floppy_disk_count.png")
+        self.floppy_disk_count_label = Label(self.screen, 1312, 188, 120, 40, 25, "0", (255, 255, 255), 255, 'right')
 
         self.objects.append(self.money_count_widget)
         self.objects.append(self.money_count_label)
+
+        self.objects.append(self.floppy_disk_count_widget)
+        self.objects.append(self.floppy_disk_count_label)
+
         # self.objects.append(ImageButton(self.screen, 30, 330, 325, 110, 'Выход', 50, (255, 255, 255), lambda: self.__exit_game(), imagePath = "../src/imgs/btn.png"))
         
         print(">> Запуск Основной игровой сцены")

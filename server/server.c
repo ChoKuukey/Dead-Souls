@@ -203,6 +203,8 @@ int main(void) {
                         //* Активация аккаунта пользователя
                         printf(">> Starting account activation. User: %s\n", data[0]);
                         result = account_activation(data);
+                    } else if (atoi(data[data_count - 1]) == GET_ACCOUNT_NAME) {
+                        
                     }
                     
 

@@ -44,10 +44,10 @@ if __name__ == '__main__':
     # client_process = Process(target=client.connect_to_server, args=("89.189.179.132", 8623), name="Dead-Souls-Client", daemon=True)
     # client_process.start()
 
-    mainWin = MainScene(__SCREEN, __SETTINGS, client, __DB, __DB_CONFIG, bg="../src/imgs/cool_bg.png")
-    client.main_menu_scene = mainWin
-    mainWin.main()
+    # mainWin = MainScene(__SCREEN, __SETTINGS, client, __DB, __DB_CONFIG, bg="../src/imgs/cool_bg.png")
+    # client.main_menu_scene = mainWin
+    # mainWin.main()
     # ccs = ConfirmCode_scene(__SCREEN, __SETTINGS, client, __DB, __DB_CONFIG, bg="../src/imgs/cool_bg.png", sent_code=None, email="example@gmail.com")
     # ccs.main()
-    # maim_game_scene = MainGameScene(__SCREEN, __SETTINGS, __DB, __DB_CONFIG, "../src/imgs/main_bg.png")
-    # maim_game_scene.main()
+    maim_game_scene = MainGameScene(__SCREEN, __SETTINGS, client, __DB, __DB_CONFIG, "../src/imgs/main_game_scene.png")
+    maim_game_scene.main()

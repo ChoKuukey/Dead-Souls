@@ -29,7 +29,8 @@ typedef enum {
     ACCOUNT_SIGNIN = 1,
     ACCOUNT_REGISTRATION,
     CONFIRM_CODE, //* Запрос на код подтверждения
-    ACCOUNT_ACTIVATION
+    ACCOUNT_ACTIVATION,
+    GET_ACCOUNT_NAME
 } QUERY_FLAGS; //* Принимаем от пользователя
 
 typedef enum {
@@ -50,3 +51,4 @@ int account_signin(char** data_string);
 int account_registration(char** data_string);
 int send_confirm_code(char** data_string, char* code);
 int account_activation(char** data_string);
+int get_account_name(char** data_string);

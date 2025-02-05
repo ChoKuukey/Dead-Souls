@@ -132,6 +132,32 @@ class Client:
     def close_connection_to_server(self):
         self.run = False
     
+    def get_user_name(self, email) -> str:
+        """ Метод для получения имени пользователя по email """
+        response_flags = parse_yaml_config("../src/client/flags.yaml")
+        operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
+        get_user_name_flag = operation_flags["get_account_name"]
+
+        query_string = f"{email} {get_user_name_flag}"
+        try:
+            send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        except socket.error as e:
+            print(f">> Failed to send data to server. ({e})")
+            return 
+        
+        if send_data:
+            print(f">> Sent: '{query_string}' to server to get user name operation, size sent data: {send_data}")
+            time.sleep(0.2)
+
+            if int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
+                print(">> Неизвестная ошибка при получении имени пользователя")
+                return "ERROR"
+            if int(self.recv_data.decode("utf-8")) == response_flags["EXCEPTION"]:
+                print(">> Неизвестное исключение при получении имени пользователя")
+                return "EXCEPTION"
+            user_name = self.data_tokens[0]
+            return user_name
+
     def account_enter(self, email: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list) -> None:
         """ Метод для авторизации пользователя """
         response_flags = parse_yaml_config("../src/client/flags.yaml")
@@ -158,7 +184,8 @@ class Client:
             elif int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
                 print(">> Авторизация прошла успешно")
                 signin_scene.run = False
-                main_game_scene = MainGameScene(screen=scene_params[0], settings=scene_params[1], client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg="../src/imgs/main_game_scene.png")
+                user_name = self.get_user_name(email)
+                main_game_scene = MainGameScene(screen=scene_params[0], settings=scene_params[1], client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg="../src/imgs/main_game_scene.png", user=user_name)
                 main_game_scene.main()
             # Пользователь не найден
             elif int(self.recv_data.decode("utf-8")) == response_flags["EXCEPTION"]:
@@ -301,3 +328,7 @@ class Client:
             print(">> No data sent.")
             error_label.set_text("Не удалось выполнить запрос: code -1")
             return
+        
+    def get_user_money_count(self, user: str) -> int:
+        """ Метод для получения количества основной валюты у пользователя """
+        return

@@ -2,3 +2,4 @@ account_enter: 1
 account_register: 2
 query_confirm_code: 3
 account_activation: 4
+get_account_name: 5
