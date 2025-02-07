@@ -38,10 +38,10 @@ class ConfirmCode_scene(Scene):
         if isinstance(bg, str):
             try:
                 self.bg = pygame.image.load(bg).convert_alpha()
-                self.scaledimage = pygame.transform.scale(self.bg, (settings['screen_size'][0], settings['screen_size'][1])) 
+                self.scaledimage = pygame.transform.scale(self.bg, (settings['screen_size'][0], settings['screen_size'][1]))
             except FileNotFoundError:
                 print(">> Не удалось загрузить фоновое изображение")
-            else: 
+            else:
                 self.bg = (0, 0, 0)
         elif isinstance(bg, tuple):
             self.bg = bg

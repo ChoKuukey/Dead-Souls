@@ -53,10 +53,6 @@ class ImageLabel(Label):
         self.image = pygame.image.load(bg).convert_alpha()
         self.scaledimage = pygame.transform.scale(self.image, (width, height)) 
 
-    def set_text(self, text: str) -> None:
-        self.text = text
-        self.labelSurface = self.__font.render(self.text, True, self.__textColor)
-
     def process(self, event) -> None:
 
         self.surface.blit(self.scaledimage, (0, 0))

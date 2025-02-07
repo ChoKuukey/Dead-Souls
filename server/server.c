@@ -204,7 +204,26 @@ int main(void) {
                         printf(">> Starting account activation. User: %s\n", data[0]);
                         result = account_activation(data);
                     } else if (atoi(data[data_count - 1]) == GET_ACCOUNT_NAME) {
-                        
+                        //* Запрос на поиск имени пользователя по почте
+                        printf(">> Starting get account name. User: %s\n", data[0]);
+                        char* account_name_result = get_account_name(data);
+                        printf(">> user's name is %s\n", account_name_result);
+                        if (account_name_result == NULL) {
+                            fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                            continue;
+                        }
+                        snprintf(result_buffer, MAX_RESULT_LENGTH, "%s %d", account_name_result, QUERY_SUCCESS);
+                        result_buffer[MAX_RESULT_LENGTH] = '\0';
+                        if (result_buffer == NULL) {
+                            fprintf(stderr, ">> Failed to allocate memory for result buffer\n");
+                            continue;
+                        }
+                        if (send(client_socket, result_buffer, strlen(result_buffer), 0) == -1) {
+                            fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                        } else {
+                            printf(">> Data sent to client %s\n", result_buffer);
+                        }
+                        continue;
                     }
                     
 

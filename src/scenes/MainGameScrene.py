@@ -54,17 +54,23 @@ class MainGameScene(Scene):
 
         self.run = True
 
-        self.money_count_widget = ImageLabel(self.screen, 1550, 185, 120, 40, 0, "", (0, 0, 0), 0, 'center', "../src/imgs/money_count.png")
+        self.money_count_widget = ImageLabel(self.screen, 1550, 185, 120, 40, 0, "0", (255, 255, 255), 0, 'center', "../src/imgs/money_count.png")
         self.money_count_label = Label(self.screen, 1512, 188, 120, 40, 25, "0", (255, 255, 255), 255, 'right')
 
         self.floppy_disk_count_widget = ImageLabel(self.screen, 1350, 185, 120, 40, 0, "", (0, 0, 0), 0, 'center', "../src/imgs/floppy_disk_count.png")
         self.floppy_disk_count_label = Label(self.screen, 1312, 188, 120, 40, 25, "0", (255, 255, 255), 255, 'right')
+
+        self.user_name_widget = ImageLabel(self.screen, 100, 1000, 600, 80, 0, "", (231, 106, 58), 255, 'center', "../src/imgs/user_name_label.png")
+        self.user_name_label = Label(self.screen, 110, 1000, 700, 80, 45, f"{self.user}", (231, 106, 58), 255, 'left')
 
         self.objects.append(self.money_count_widget)
         self.objects.append(self.money_count_label)
 
         self.objects.append(self.floppy_disk_count_widget)
         self.objects.append(self.floppy_disk_count_label)
+
+        self.objects.append(self.user_name_widget)
+        self.objects.append(self.user_name_label)
 
         # self.objects.append(ImageButton(self.screen, 30, 330, 325, 110, 'Выход', 50, (255, 255, 255), lambda: self.__exit_game(), imagePath = "../src/imgs/btn.png"))
         

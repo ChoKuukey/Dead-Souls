@@ -279,7 +279,6 @@ int account_registration(char** data_string) {
         // PQclear(res);
     } else {
         max_id = atoi(PQgetvalue(res, 0, 0)) + 1;
-        printf("max_id: %d\n", max_id);
         
     }
     PQclear(res);
@@ -358,40 +357,64 @@ int account_activation(char** data_string) {
     return QUERY_SUCCESS;
 }
 
-int get_account_name(char** data_string) {
+char* get_account_name(char** data_string) {
     //* Получаем имя пользователя по почте
     char** db_config = get_db_config();
 
-    char* email = data_string[0];
-
-    if (email == NULL) {
+    if (data_string == NULL || data_string[0] == NULL) {
         fprintf(stderr, ">> Email is NULL in account_activation\n");
-        return QUERY_ERROR;
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
     }
 
+    char* email = data_string[0];
     char query[MAX_SQL_QUERY_LENGTH];
     snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT name FROM %s WHERE email = '%s';", db_config[4], email);
+    printf("%s\n", query);
+
     PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
 
+    if (res == NULL) {
+        fprintf(stderr, ">> PGresult is NULL in get_account_name\n");
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
     // Проверка выполнения запроса
-    if (PQresultStatus(res)!= PGRES_COMMAND_OK) {
-        fprintf(stderr, "Query failed:%s\n", PQerrorMessage(conn));
+    if (PQresultStatus(res)!= PGRES_TUPLES_OK) {
+        fprintf(stderr, ">> Query failed:%s\n", PQerrorMessage(conn));
         PQclear(res);
         exit_nicely(conn);
-        return QUERY_ERROR;
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
     }
+
     int rows = PQntuples(res);
-    char* name;
-    if (rows == 0 || PQgetvalue(res, 0, 0) == NULL) {
-        char* name = PQgetvalue(res, 0, 0);
-        // PQclear(res);
-    } else {
-        return QUERY_ERROR;
-        
+    if (rows == 0) {
+        fprintf(stderr, ">> No user found with the provided email.\n");
+        PQclear(res);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
     }
 
-    printf(">> Successfully get user's name from email. User: %s\n", email);
-    puts("\n");
+    char* name = PQgetvalue(res, 0, 0);
+    if (name == NULL) {
+        fprintf(stderr, ">> PQgetvalue failed in get_account_name\n");
+        PQclear(res);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
 
-    return name;
+    char* result_string = strdup(name);
+    if (result_string == NULL) {
+        fprintf(stderr, ">> Not enough memory to allocate result_string in get_account_name.\n");
+        PQclear(res);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    PQclear(res);
+
+    printf(">> Successfully retrieved user's name from email. Username: %s\n", result_string);
+    return result_string;
 }

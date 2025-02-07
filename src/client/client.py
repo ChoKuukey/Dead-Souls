@@ -148,15 +148,17 @@ class Client:
         if send_data:
             print(f">> Sent: '{query_string}' to server to get user name operation, size sent data: {send_data}")
             time.sleep(0.2)
-
-            if int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
-                print(">> Неизвестная ошибка при получении имени пользователя")
-                return "ERROR"
-            if int(self.recv_data.decode("utf-8")) == response_flags["EXCEPTION"]:
-                print(">> Неизвестное исключение при получении имени пользователя")
-                return "EXCEPTION"
-            user_name = self.data_tokens[0]
-            return user_name
+            if len(self.data_tokens) == 1:
+                if int(self.data_tokens[0]) == response_flags["ERROR"]:
+                    print(">> Неизвестная ошибка при получении имени пользователя")
+                    return "ERROR"
+                if int(self.data_tokens[-1][0]) == response_flags["EXCEPTION"]:
+                    print(">> Неизвестное исключение при получении имени пользователя")
+                    return "EXCEPTION"
+            else:
+                if int(self.data_tokens[-1]) == response_flags["OK"]:
+                    user_name = self.data_tokens[0]
+                    return user_name
 
     def account_enter(self, email: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list) -> None:
         """ Метод для авторизации пользователя """
@@ -272,7 +274,7 @@ class Client:
                     confirm_code_scene = ConfirmCode_scene(
                         scene_params[0], scene_params[1], self, 
                         scene_params[3], scene_params[4], 
-                        "../imgs/cool_bg.png", 
+                        "../src/imgs/cool_bg.png", 
                         sent_code=None, 
                         email=email
                     )
@@ -321,7 +323,7 @@ class Client:
 
                 confirm_code_scene.run = False
 
-                maim_game_scene = MainGameScene(scene_params[0], scene_params[1], self, scene_params[2], scene_params[3], "../src/imgs/main_menu_scene.png")
+                maim_game_scene = MainGameScene(scene_params[0], scene_params[1], self, scene_params[2], scene_params[3], "../src/imgs/main_game_scene.png", user=self.get_user_name(user_email))
                 maim_game_scene.main()
 
         else:
