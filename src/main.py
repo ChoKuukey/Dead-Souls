@@ -3,6 +3,7 @@
 import pygame
 import os
 import sys
+import time
 import threading
 from multiprocessing import Process
 
@@ -49,5 +50,6 @@ if __name__ == '__main__':
     mainWin.main()
     # ccs = ConfirmCode_scene(__SCREEN, __SETTINGS, client, __DB, __DB_CONFIG, bg="../src/imgs/cool_bg.png", sent_code=None, email="example@gmail.com")
     # ccs.main()
-    # maim_game_scene = MainGameScene(__SCREEN, __SETTINGS, client, __DB, __DB_CONFIG, "../src/imgs/main_game_scene.png", "dorogino@gmail.com")
+    # time.sleep(3)
+    # maim_game_scene = MainGameScene(__SCREEN, __SETTINGS, client, __DB, __DB_CONFIG, "../src/imgs/main_game_scene.png", "JazzMaster")
     # maim_game_scene.main()

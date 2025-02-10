@@ -224,6 +224,46 @@ int main(void) {
                             printf(">> Data sent to client %s\n", result_buffer);
                         }
                         continue;
+                    } else if (atoi(data[data_count - 1]) == GET_USER_CD_DISK_COUNT) {
+                        //* Запрос на получение кол-ва CD дисков у игрока
+                        printf(">> Starting get user cd disk count. User: %s\n", data[0]);
+                        char* cd_disk_count = get_user_cd_disk_count(data);
+                        if (cd_disk_count == NULL) {
+                            fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                            continue;
+                        }
+                        snprintf(result_buffer, MAX_RESULT_LENGTH, "%s %d", cd_disk_count, QUERY_SUCCESS);
+                        result_buffer[MAX_RESULT_LENGTH] = '\0';
+                        if (result_buffer == NULL) {
+                            fprintf(stderr, ">> Failed to allocate memory for result buffer\n");
+                            continue;
+                        }
+                        if (send(client_socket, result_buffer, strlen(result_buffer), 0) == -1) {
+                            fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                        } else {
+                            printf(">> Data sent to client %s\n", result_buffer);
+                        }
+                        continue;
+                    } else if (atoi(data[data_count - 1]) == GET_USER_FLOPPY_DISK_COUNT) {
+                        //* Запрос на получение кол-вадискет у игрока
+                        printf(">> Starting get user floppy disk count. User: %s\n", data[0]);
+                        char* cd_disk_count = get_user_floppy_disk_count(data);
+                        if (cd_disk_count == NULL) {
+                            fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                            continue;
+                        }
+                        snprintf(result_buffer, MAX_RESULT_LENGTH, "%s %d", cd_disk_count, QUERY_SUCCESS);
+                        result_buffer[MAX_RESULT_LENGTH] = '\0';
+                        if (result_buffer == NULL) {
+                            fprintf(stderr, ">> Failed to allocate memory for result buffer\n");
+                            continue;
+                        }
+                        if (send(client_socket, result_buffer, strlen(result_buffer), 0) == -1) {
+                            fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                        } else {
+                            printf(">> Data sent to client %s\n", result_buffer);
+                        }
+                        continue;
                     }
                     
 

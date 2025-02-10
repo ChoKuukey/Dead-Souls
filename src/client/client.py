@@ -314,12 +314,11 @@ class Client:
             print(f">> Recieved data from server: {self.recv_data.decode('utf-8')} size: {len(self.recv_data.decode('utf-8'))}")
 
             # Ошибка
-            if int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
+            if len(self.data_tokens) == 1 and int(self.recv_data.decode("utf-8")) == response_flags["ERROR"]:
                 print(">> Неизвестная ошибка")
                 return
-            elif int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
+            elif len(self.data_tokens) == 1 and int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
                 print(">> Активация прошла успешно")
-
 
                 confirm_code_scene.run = False
 
@@ -331,6 +330,58 @@ class Client:
             error_label.set_text("Не удалось выполнить запрос: code -1")
             return
         
-    def get_user_money_count(self, user: str) -> int:
-        """ Метод для получения количества основной валюты у пользователя """
-        return
+    def get_user_cd_disk_count(self, user: str) -> int:
+        """ Метод для получения количества CD дисков у пользователя """
+        response_flags = parse_yaml_config("../src/client/flags.yaml")
+        operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
+        get_cd_disk_count_flag = operation_flags["get_user_sd_disk_count"]
+
+        query_string = f"{user} {get_cd_disk_count_flag}"
+        try:
+            send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        except socket.error as e:
+            print(f">> Failed to send data to server. ({e})")
+            return 
+        
+        if send_data:
+            print(f">> Sent: '{query_string}' to server to get user name operation, size sent data: {send_data}")
+            time.sleep(0.2)
+            if len(self.data_tokens) == 1:
+                if int(self.data_tokens[0]) == response_flags["ERROR"]:
+                    print(">> Неизвестная ошибка при получении кол-ва CD дисков пользователя")
+                    return "ERROR"
+                if int(self.data_tokens[-1][0]) == response_flags["EXCEPTION"]:
+                    print(">> Неизвестное исключение при получении получении кол-ва CD дисков пользователя")
+                    return "EXCEPTION"
+            else:
+                if int(self.data_tokens[-1]) == response_flags["OK"]:
+                    user_cd_disk_sount = int(self.data_tokens[0])
+                    return user_cd_disk_sount
+    
+    def get_user_floppy_disk_count(self, user: str) -> int:
+        """ Метод для получения количества дискет у пользователя """
+        response_flags = parse_yaml_config("../src/client/flags.yaml")
+        operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
+        get_floppy_disk_count_flag = operation_flags["get_user_floppy_disk_count"]
+
+        query_string = f"{user} {get_floppy_disk_count_flag}"
+        try:
+            send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        except socket.error as e:
+            print(f">> Failed to send data to server. ({e})")
+            return 
+        
+        if send_data:
+            print(f">> Sent: '{query_string}' to server to get user name operation, size sent data: {send_data}")
+            time.sleep(0.2)
+            if len(self.data_tokens) == 1:
+                if int(self.data_tokens[0]) == response_flags["ERROR"]:
+                    print(">> Неизвестная ошибка при получении кол-ва CD дисков пользователя")
+                    return "ERROR"
+                if int(self.data_tokens[-1][0]) == response_flags["EXCEPTION"]:
+                    print(">> Неизвестное исключение при получении получении кол-ва CD дисков пользователя")
+                    return "EXCEPTION"
+            else:
+                if int(self.data_tokens[-1]) == response_flags["OK"]:
+                    user_cd_disk_sount = int(self.data_tokens[0])
+                    return user_cd_disk_sount

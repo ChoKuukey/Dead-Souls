@@ -62,7 +62,7 @@ class MainScene(Scene):
         autorization_scene.main()
 
     def __run_settings_scene(self):
-        settings_scene = SettingsScene(self.screen, self.settings, self.client, bg="../src/imgs/bg_settings.png")
+        settings_scene = SettingsScene(self.screen, self.settings, self.client, bg="../src/imgs/cool_bg.png")
         self.client.settings_scene = settings_scene
         settings_scene.main()
 

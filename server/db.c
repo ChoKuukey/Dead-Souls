@@ -71,7 +71,7 @@ void connect_to_db(void) {
         created_at timestamp without time zone, \
         updated_at timestamp without time zone, \
         is_active boolean NOT NULL DEFAULT FALSE, \
-        money_count INTEGER NOT NULL DEFAULT 0, \
+        cd_disk_count INTEGER NOT NULL DEFAULT 0, \
         floppy_disk_count INTEGER NOT NULL DEFAULT 0);", db_config[4]);
 
     PGresult *users_res = PQexecParams(conn, create_users_table, 0, NULL, NULL, NULL, NULL, 0);
@@ -370,7 +370,6 @@ char* get_account_name(char** data_string) {
     char* email = data_string[0];
     char query[MAX_SQL_QUERY_LENGTH];
     snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT name FROM %s WHERE email = '%s';", db_config[4], email);
-    printf("%s\n", query);
 
     PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
 
@@ -416,5 +415,135 @@ char* get_account_name(char** data_string) {
     PQclear(res);
 
     printf(">> Successfully retrieved user's name from email. Username: %s\n", result_string);
+    return result_string;
+}
+
+char* get_user_cd_disk_count(char** data_string) {
+    //* Получаем кол-во CD дисков у игрока
+    char** db_config = get_db_config();
+
+    if (data_string == NULL || data_string[0] == NULL) {
+        fprintf(stderr, ">> User is NULL in get_user_cd_disk_count\n");
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    char* user = data_string[0];
+    char query[MAX_SQL_QUERY_LENGTH];
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT cd_disk_count FROM %s WHERE name = '%s';", db_config[4], user);
+
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    
+    if (res == NULL) {
+        fprintf(stderr, ">> PGresult is NULL in get_user_cd_disk_count\n");
+        char* err;
+        exit_nicely(conn);
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    // Проверка выполнения запроса
+    if (PQresultStatus(res)!= PGRES_TUPLES_OK) {
+        fprintf(stderr, ">> Query failed:%s\n", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    int rows = PQntuples(res);
+    if (rows == 0) {
+        fprintf(stderr, ">> No user found.\n");
+        PQclear(res);
+        exit_nicely(conn);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    char* cd_disk_count = PQgetvalue(res, 0, 0);
+    if (cd_disk_count == NULL) {
+        fprintf(stderr, ">> PQgetvalue failed in get_user_cd_disk_count\n");
+        PQclear(res);
+        exit_nicely(conn);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    char* result_string = strdup(cd_disk_count);
+    if (result_string == NULL) {
+        fprintf(stderr, ">> Not enough memory to allocate result_string in get_user_cd_disk_count.\n");
+        PQclear(res);
+        exit_nicely(conn);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    PQclear(res);
+
+    printf(">> Successfully retrieved user's CD disk count. CD disk count: %s\n", result_string);
+    return result_string;
+}
+
+char* get_user_floppy_disk_count(char** data_string) {
+    //* Получаем кол-во ДИСКЕТ у игрока
+    char** db_config = get_db_config();
+
+    if (data_string == NULL || data_string[0] == NULL) {
+        fprintf(stderr, ">> User is NULL in get_user_floppy_disk_count\n");
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    char* user = data_string[0];
+    char query[MAX_SQL_QUERY_LENGTH];
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT floppy_disk_count FROM %s WHERE name = '%s';", db_config[4], user);
+
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    
+    if (res == NULL) {
+        fprintf(stderr, ">> PGresult is NULL in get_user_floppy_disk_count\n");
+        exit_nicely(conn);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    // Проверка выполнения запроса
+    if (PQresultStatus(res)!= PGRES_TUPLES_OK) {
+        fprintf(stderr, ">> Query failed:%s\n", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    int rows = PQntuples(res);
+    if (rows == 0) {
+        fprintf(stderr, ">> No user found.\n");
+        PQclear(res);
+        exit_nicely(conn);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    char* floppy_disk_count = PQgetvalue(res, 0, 0);
+    if (floppy_disk_count == NULL) {
+        fprintf(stderr, ">> PQgetvalue failed in get_user_floppy_disk_count\n");
+        PQclear(res);
+        exit_nicely(conn);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    char* result_string = strdup(floppy_disk_count);
+    if (result_string == NULL) {
+        fprintf(stderr, ">> Not enough memory to allocate result_string in get_user_floppy_disk_count.\n");
+        PQclear(res);
+        exit_nicely(conn);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    PQclear(res);
+
+    printf(">> Successfully retrieved user's FLOPPY disk count. CD disk count: %s\n", result_string);
     return result_string;
 }

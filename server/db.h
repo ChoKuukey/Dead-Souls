@@ -17,7 +17,6 @@
 #define MAX_RESULT_LENGTH 256
 
 
-
 typedef enum {
     QUERY_ERROR = 1 , // Ошбика запроса в БД
     QUERY_SUCCESS, // Успешный запрос
@@ -30,7 +29,9 @@ typedef enum {
     ACCOUNT_REGISTRATION,
     CONFIRM_CODE, //* Запрос на код подтверждения
     ACCOUNT_ACTIVATION,
-    GET_ACCOUNT_NAME
+    GET_ACCOUNT_NAME,
+    GET_USER_CD_DISK_COUNT,
+    GET_USER_FLOPPY_DISK_COUNT
 } QUERY_FLAGS; //* Принимаем от пользователя
 
 typedef enum {
@@ -46,9 +47,12 @@ typedef enum {
     CONFIRM_CODE_SUCCESS = 30,
 } CODE_STATUS; //* Отправляем пользователю
 
+
 void connect_to_db(void);
 int account_signin(char** data_string);
 int account_registration(char** data_string);
 int send_confirm_code(char** data_string, char* code);
 int account_activation(char** data_string);
 char* get_account_name(char** data_string);
+char* get_user_cd_disk_count(char** data_string);
+char* get_user_floppy_disk_count(char** data_string);
