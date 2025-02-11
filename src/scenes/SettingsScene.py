@@ -12,11 +12,12 @@ fpsClock = pygame.time.Clock()
 
 class SettingsScene(Scene):
     """ Сцена настроек """
-    def __init__(self, screen, settings: dict, client, bg: str | tuple = None) -> None:
+    def __init__(self, screen, settings: dict, client, bg: str | tuple = None, main_menu: Scene = None) -> None:
         super().__init__(screen, settings, client)
 
         self.bg = None
         self.scaledimage = None
+        self.main_menu = None
 
         self.objects = []
 

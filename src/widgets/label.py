@@ -20,7 +20,7 @@ class Label(Widget):
         self.labelSurface = self.__font.render(self.text, True, self.__textColor)
         self.labelSurface.set_alpha(bg_alpha)
 
-        self.surface = pygame.Surface((width, height), pygame.SRCALPHA)
+        # self.surface = pygame.Surface((width, height), pygame.SRCALPHA)
 
     def set_text(self, text: str) -> None:
         self.text = text

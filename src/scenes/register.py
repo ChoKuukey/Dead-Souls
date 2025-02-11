@@ -27,10 +27,11 @@ pygame.init()
 fpsClock = pygame.time.Clock()
 
 class Register_Scene(Scene):
-    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str | tuple = None) -> None:
+    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str | tuple = None, main_menu: Scene = None) -> None:
         super().__init__(screen, settings, client)
         self.__DB = db
         self.__DB_CONFIG = db_config
+        self.main_menu = main_menu
 
         self.objects = []
 
