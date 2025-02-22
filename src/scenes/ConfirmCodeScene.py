@@ -67,7 +67,7 @@ class ConfirmCode_scene(Scene):
 
             scene_params = [self.screen, self.settings, self.__DB, self.__DB_CONFIG]
             
-            self.client.activate_user_account(self.email, self, error_label, scene_params)
+            self.client.activate_user_account(self.email, self, error_label, scene_params, self.main_menu)
 
 
     def main(self) -> None:

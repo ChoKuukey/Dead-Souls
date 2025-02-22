@@ -159,6 +159,26 @@ void connect_to_db(void) {
     // const char* conninfo = "host=localhost port=5432 dbname=postgres user=postgres password=12345";
 }
 
+int create_session(int user_id) {
+    //* Функция для генерации новой сессии для игрока
+    char session_id[37]; //* UUID состоит из 36 символов (32 16-ричных символов + 4 символа - дефисы)
+
+    char query[MAX_SQL_QUERY_LENGTH];
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "INSERT INTO %s (user_id, session_id, created_at, updated_at, online) VALUES (%d, uuid_generate_v4(), now(), now(), true);", get_db_config()[5], user_id);
+
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        fprintf(stderr, ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        return QUERY_ERROR;
+    }
+
+    PQclear(res);
+    printf(">> Session created successfully for user ID %d\n", user_id);
+    return QUERY_SUCCESS;
+}
+
 int account_signin(char** data_string) {
     //* Запрос на авторизацию пользователя
     char** db_config = get_db_config();

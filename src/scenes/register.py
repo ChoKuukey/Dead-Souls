@@ -97,7 +97,7 @@ class Register_Scene(Scene):
                                         passwrod_input.textvariable,
                                         error_label,
                                         self,
-                                        [self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, "../src/imgs/main_bg.png"],), 
+                                        [self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, "../src/imgs/main_bg.png"], self.main_menu), 
                                         imagePath="../src/imgs/btn.png"))
         
         self.objects.append(CheckBox(self.screen, (self.screen.get_width() / 2 + 305), 580, 50, 50, function = lambda: self.change_pass_vision(passwrod_input)))

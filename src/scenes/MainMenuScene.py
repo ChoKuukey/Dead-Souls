@@ -52,17 +52,17 @@ class MainScene(Scene):
         sys.exit()
 
     def __run_registration_scene(self):
-        register_scene = Register_Scene(self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, bg="../src/imgs/cool_bg.png")
+        register_scene = Register_Scene(self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, bg="../src/imgs/cool_bg.png", main_menu=self)
         self.client.register_scene = register_scene
         register_scene.main()
 
     def __run_autorization_scene(self):
-        autorization_scene = SignInScene(self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, bg="../src/imgs/cool_bg.png")
+        autorization_scene = SignInScene(self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, bg="../src/imgs/cool_bg.png", main_menu=self)
         self.client.signin_scene = autorization_scene
         autorization_scene.main()
 
     def __run_settings_scene(self):
-        settings_scene = SettingsScene(self.screen, self.settings, self.client, bg="../src/imgs/cool_bg.png")
+        settings_scene = SettingsScene(self.screen, self.settings, self.client, bg="../src/imgs/cool_bg.png", main_menu=self)
         self.client.settings_scene = settings_scene
         settings_scene.main()
 

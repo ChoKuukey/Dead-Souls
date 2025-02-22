@@ -24,10 +24,11 @@ pygame.init()
 fpsClock = pygame.time.Clock()
 
 class SignInScene(Scene):
-    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str | tuple = None) -> None:
+    def __init__(self, screen, settings: dict, client, db, db_config: dict, bg: str | tuple = None, main_menu: Scene = None) -> None:
         super().__init__(screen, settings, client)
         self.__DB = db
         self.__DB_CONFIG = db_config
+        self.main_menu = main_menu
 
         self.objects = []
 
@@ -85,7 +86,7 @@ class SignInScene(Scene):
                                                                                      passwrod_input.textvariable, 
                                                                                      error_label, 
                                                                                      self,
-                                                                                     [self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, "../src/imgs/main_bg.png"]),
+                                                                                     [self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, "../src/imgs/main_bg.png"], self.main_menu),
                                         imagePath="../src/imgs/btn.png"))
         self.objects.append(CheckBox(self.screen, (self.screen.get_width() / 2 + 305), 460, 50, 50, function = lambda: self.change_pass_vision(passwrod_input)))
         self.objects.append(ImageButton(self.screen, (self.screen.get_width() / 2 + 110), 590, 190, 80, 'Назад', 45, (255, 255, 255), self.__back, imagePath="../src/imgs/btn.png"))

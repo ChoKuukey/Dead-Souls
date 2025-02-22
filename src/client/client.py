@@ -160,7 +160,7 @@ class Client:
                     user_name = self.data_tokens[0]
                     return user_name
 
-    def account_enter(self, email: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list) -> None:
+    def account_enter(self, email: str, password: str, error_label: Label, signin_scene: SignInScene, scene_params: list, main_menu) -> None:
         """ Метод для авторизации пользователя """
         response_flags = parse_yaml_config("../src/client/flags.yaml")
         operation_flag = parse_yaml_config("../src/client/server_flags.yaml")
@@ -187,7 +187,14 @@ class Client:
                 print(">> Авторизация прошла успешно")
                 signin_scene.run = False
                 user_name = self.get_user_name(email)
-                main_game_scene = MainGameScene(screen=scene_params[0], settings=scene_params[1], client=scene_params[2], db=scene_params[3], db_config=scene_params[4], bg="../src/imgs/main_game_scene.png", user=user_name)
+                main_game_scene = MainGameScene(screen=scene_params[0], 
+                                                settings=scene_params[1], 
+                                                client=scene_params[2], 
+                                                db=scene_params[3], 
+                                                db_config=scene_params[4], 
+                                                bg="../src/imgs/main_game_scene.png", 
+                                                user=user_name,
+                                                main_menu=main_menu)
                 main_game_scene.main()
             # Пользователь не найден
             elif int(self.recv_data.decode("utf-8")) == response_flags["EXCEPTION"]:
@@ -206,7 +213,7 @@ class Client:
         print(">> Код подтверждения отправлен")
         self.register_scene.run = False
 
-    def account_registration(self, email: str, name: str, password: str, error_label: Label, register_scene: Register_Scene, scene_params: list) -> None:
+    def account_registration(self, email: str, name: str, password: str, error_label: Label, register_scene: Register_Scene, scene_params: list, main_menu) -> None:
         """ Метод для регистрации пользователя """
         response_flags = parse_yaml_config("../src/client/flags.yaml")
         operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
@@ -276,7 +283,8 @@ class Client:
                         scene_params[3], scene_params[4], 
                         "../src/imgs/cool_bg.png", 
                         sent_code=None, 
-                        email=email
+                        email=email,
+                        main_menu=main_menu
                     )
                     confirm_code_scene.main()
 
@@ -292,7 +300,7 @@ class Client:
             error_label.set_text("Не удалось выполнить запрос: code -1")
             return
 
-    def activate_user_account(self, user_email: str, confirm_code_scene: ConfirmCode_scene, error_label: Label, scene_params: list):
+    def activate_user_account(self, user_email: str, confirm_code_scene: ConfirmCode_scene, error_label: Label, scene_params: list, main_menu):
         """ Активация аккаунта """
         response_flags = parse_yaml_config("../src/client/flags.yaml")
         operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
@@ -322,7 +330,13 @@ class Client:
 
                 confirm_code_scene.run = False
 
-                maim_game_scene = MainGameScene(scene_params[0], scene_params[1], self, scene_params[2], scene_params[3], "../src/imgs/main_game_scene.png", user=self.get_user_name(user_email))
+                maim_game_scene = MainGameScene(scene_params[0], 
+                                                scene_params[1], 
+                                                self, scene_params[2], 
+                                                scene_params[3], 
+                                                "../src/imgs/main_game_scene.png", 
+                                                user=self.get_user_name(user_email),
+                                                main_menu=main_menu)
                 maim_game_scene.main()
 
         else:

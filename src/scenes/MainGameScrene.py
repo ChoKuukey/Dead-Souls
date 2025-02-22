@@ -4,7 +4,6 @@ import sys
 import time
 
 from scenes.scene import Scene
-from scenes.MainMenuScene import MainScene
 
 from widgets.button import (
     ImageButton
@@ -25,7 +24,7 @@ class MainGameScene(Scene):
         super().__init__(screen, settings, client)
         self.__DB = db
         self.__DB_CONFIG = db_config
-        main_menu = main_menu
+        self.main_menu = main_menu
         self.objects = []
 
         self.bg = None
@@ -50,8 +49,7 @@ class MainGameScene(Scene):
 
     def __exit_game(self) -> None:
         self.run = False
-        main_menu_scene = MainScene(self.screen, self.settings, self.client, self.__DB, self.__DB_CONFIG, "../src/img/cool_bg.png")
-        main_menu_scene.main()
+        self.main_menu.main()
 
     def __close_menu(self) -> None:
         self.menu_open = False
