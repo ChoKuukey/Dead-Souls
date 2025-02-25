@@ -48,6 +48,12 @@ class MainGameScene(Scene):
             self.bg = (0, 0, 0)
 
     def __exit_game(self) -> None:
+        self.client.delete_session(self.client.user_session_id)
+        self.run = False
+        # self.main_menu.main()
+
+    def __account_exit(self):
+        self.client.delete_session(self.client.user_session_id)
         self.run = False
         self.main_menu.main()
 
@@ -56,6 +62,7 @@ class MainGameScene(Scene):
         self.objects.remove(self.menu_bg)
         self.objects.remove(self.menu)
         self.objects.remove(self.menu_button_exit)
+        self.objects.remove(self.button_account_exit)
         self.objects.remove(self.button_exit)
 
     def __open_menu(self) -> None:
@@ -70,7 +77,10 @@ class MainGameScene(Scene):
         self.menu_button_exit = ImageButton(self.screen, 1225, 114, 36, 36, "", 0, (255, 255, 255), lambda: self.__close_menu(), False, (255, 255, 255), "../src/imgs/menu_button_exit.png")
         self.objects.append(self.menu_button_exit)
 
-        self.button_exit = ImageButton(self.screen, (self.screen.get_width() / 2 - 150), (self.screen.get_height() / 2 + 200), 300, 80, "Выход", 20, (255, 255, 255), lambda: self.__exit_game(), False, (255, 255, 255), "../src/imgs/btn.png")
+        self.button_account_exit = ImageButton(self.screen, (self.screen.get_width() / 2 - 150), (self.screen.get_height() / 2 + 150), 300, 80, "Выйти с аккаунта", 20, (255, 255, 255), lambda: self.__account_exit(), False, (255, 255, 255), "../src/imgs/btn.png")
+        self.objects.append(self.button_account_exit)
+
+        self.button_exit = ImageButton(self.screen, (self.screen.get_width() / 2 - 150), (self.screen.get_height() / 2 + 240), 300, 80, "Выход", 20, (255, 255, 255), lambda: self.__exit_game(), False, (255, 255, 255), "../src/imgs/btn.png")
         self.objects.append(self.button_exit)
 
 

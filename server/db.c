@@ -159,15 +159,108 @@ void connect_to_db(void) {
     // const char* conninfo = "host=localhost port=5432 dbname=postgres user=postgres password=12345";
 }
 
-int create_session(int user_id) {
-    //* Функция для генерации новой сессии для игрока
-    char session_id[37]; //* UUID состоит из 36 символов (32 16-ричных символов + 4 символа - дефисы)
+int static get_user_id(char* username) {
+    //* Функция для получения ID игрока по его имени
 
     char query[MAX_SQL_QUERY_LENGTH];
-    snprintf(query, MAX_SQL_QUERY_LENGTH, "INSERT INTO %s (user_id, session_id, created_at, updated_at, online) VALUES (%d, uuid_generate_v4(), now(), now(), true);", get_db_config()[5], user_id);
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT id FROM %s WHERE name = '%s'", get_db_config()[4], username);
 
     PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
 
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr, ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+    }
+
+    int user_id = atoi(PQgetvalue(res, 0, 0));
+    printf(">> User ID: %d\n", user_id);
+
+    PQclear(res);
+
+    return user_id;
+}
+
+char* create_session(char** data_string) {
+    //* Функция для генерации новой сессии для игрока
+
+    char* user = data_string[0];
+    int user_id = get_user_id(user);
+
+    char query[MAX_SQL_QUERY_LENGTH];
+
+    //* Запрос на самый большой id
+    int max_id;
+
+    snprintf(query, MAX_RESULT_LENGTH, "SELECT MAX(id) FROM %s;", get_db_config()[5]);
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr,  ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+    int rows = PQntuples(res);
+    if (rows == 0 || PQgetvalue(res, 0, 0) == NULL) {
+        max_id = 1;
+        printf(">> Session ID: %d\n", max_id);
+        // PQclear(res);
+    } else {
+        max_id = atoi(PQgetvalue(res, 0, 0)) + 1;
+        printf(">> Session ID: %d\n", max_id);
+    }
+    PQclear(res);
+
+    snprintf(query, MAX_SQL_QUERY_LENGTH, 
+        "INSERT INTO %s (id, user_id, session_id, created_at, updated_at, online) VALUES (%d, %d, uuid_generate_v4(), now(), now(), true) RETURNING session_id;", get_db_config()[5], max_id, user_id);
+
+    res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr, ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    if (PQntuples(res) == 0) {
+        fprintf(stderr, ">> No session ID returned after insertion\n");
+        PQclear(res);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    char* session_id = PQgetvalue(res, 0, 0);
+    if (session_id == NULL) {
+        fprintf(stderr, ">> PQgetvalue failed in create_session\n");
+        PQclear(res);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    char* result_string = strdup(session_id);
+    if (result_string == NULL) {
+        fprintf(stderr, ">> Not enough memory to allocate result_string in create_session.\n");
+        PQclear(res);
+        char* err;
+        return itoa(QUERY_ERROR, err, 10);
+    }
+
+    PQclear(res);
+
+    printf(">> Session created successfully session_id: %s for user ID %d\n", result_string, user);
+    return result_string;
+}
+
+int delete_session(char** data_string) {
+    //* Функция на удаление сессии с БД
+
+    char* session_id = data_string[0];
+
+    char query[MAX_SQL_QUERY_LENGTH];
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "DELETE FROM %s WHERE session_id = '%s';", get_db_config()[5], session_id);
+
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
     if (PQresultStatus(res) != PGRES_COMMAND_OK) {
         fprintf(stderr, ">> Query failed: %s\n", PQerrorMessage(conn));
         PQclear(res);
@@ -175,7 +268,55 @@ int create_session(int user_id) {
     }
 
     PQclear(res);
-    printf(">> Session created successfully for user ID %d\n", user_id);
+    printf(">> Session with ID %s deleted successfully\n", session_id);
+    return QUERY_SUCCESS;
+}
+
+int validate_session(char** data_string) {
+    //* Функция на проверку активности сессии
+
+    char* session_id = data_string[0];
+
+    char query[MAX_SQL_QUERY_LENGTH];
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "SELECT * FROM sessions WHERE session_id = '%s' AND online = TRUE;", session_id);
+
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr, ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        return QUERY_ERROR;
+    }
+
+    int rows = PQntuples(res);
+    PQclear(res);
+
+    if (rows > 0) {
+        printf(">> Session ID %s is valid\n", session_id);
+        return QUERY_SUCCESS;
+    } else {
+        printf(">> Session ID %s is invalid or not found\n", session_id);
+        return QUERY_EXCEPTION;
+    }
+}
+
+int update_session(char** data_string) {
+    //* Запрос на обновления поля online в таблице сессии
+
+    char* session_id = data_string[0];
+    char* online_value = data_string[1];
+
+    char query[MAX_SQL_QUERY_LENGTH];
+    snprintf(query, MAX_SQL_QUERY_LENGTH, "UPDATE %s SET online = '%s' WHERE session_id = '%s';", get_db_config()[5], online_value, session_id);
+
+    PGresult* res = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        fprintf(stderr, ">> Query failed: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        return QUERY_ERROR;
+    }
+
+    PQclear(res);
+    printf(">> Session with ID %s updated successfully\n", session_id);
     return QUERY_SUCCESS;
 }
 

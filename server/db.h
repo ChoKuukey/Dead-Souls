@@ -31,7 +31,11 @@ typedef enum {
     ACCOUNT_ACTIVATION,
     GET_ACCOUNT_NAME,
     GET_USER_CD_DISK_COUNT,
-    GET_USER_FLOPPY_DISK_COUNT
+    GET_USER_FLOPPY_DISK_COUNT,
+    CREATE_SESSION,
+    DELETE_SESSION,
+    VALIDATE_SESSION,
+    UPDATE_SESSION
 } QUERY_FLAGS; //* Принимаем от пользователя
 
 typedef enum {
@@ -56,3 +60,7 @@ int account_activation(char** data_string);
 char* get_account_name(char** data_string);
 char* get_user_cd_disk_count(char** data_string);
 char* get_user_floppy_disk_count(char** data_string);
+char* create_session(char** data_string);
+int delete_session(char** data_string);
+int validate_session(char** data_string);
+int update_session(char** data_string);

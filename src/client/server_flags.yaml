@@ -5,3 +5,7 @@ account_activation: 4
 get_account_name: 5
 get_user_sd_disk_count: 6
 get_user_floppy_disk_count: 7
+create_session: 8
+delete_session: 9
+validate_session: 10
+update_session: 11

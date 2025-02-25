@@ -26,6 +26,9 @@ fpsClock = pygame.time.Clock()
 
 class Client:
     def __init__(self):
+
+        self.user_session_id = None
+
         self.run = True
         self.socket_peer = None
         self.recv_data = None
@@ -132,6 +135,129 @@ class Client:
     def close_connection_to_server(self):
         self.run = False
     
+    def create_session(self, user: str) -> str:
+        """ Метод для создания сессии в БД для мользователя """
+        response_flags = parse_yaml_config("../src/client/flags.yaml")
+        operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
+        create_session_flag = operation_flags["create_session"]
+
+        query_string = f"{user} {create_session_flag}"
+        try:
+            send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        except socket.error as e:
+            print(f">> Failed to send data to server. ({e})")
+            return 
+        
+        if send_data:
+            print(f">> Sent: '{query_string}' to server to create session, size sent data: {send_data}")
+            time.sleep(0.2)
+            if len(self.data_tokens) == 1:
+                if int(self.data_tokens[0]) == response_flags["ERROR"]:
+                    print(f">> Неизвестная ошибка присоздании сессии для пользователя {user}")
+                    return "ERROR"
+                if int(self.data_tokens[0]) == response_flags["EXCEPTION"]:
+                    print(f">> Неизвестное исключение при создании сессии для пользователя {user}")
+                    return "EXCEPTION"
+            else:
+                if int(self.data_tokens[-1]) == response_flags["OK"]:
+                    user_session = self.data_tokens[0]
+                    self.user_session_id = user_session
+                    print(f">> Создана сессия: {self.user_session_id} для пользователя {user}")
+                    return user_session
+    
+    def delete_session(self, session_id: str) -> bool:
+        """ Метод для удаления сессии в БД для мользователя """
+        response_flags = parse_yaml_config("../src/client/flags.yaml")
+        operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
+        delete_session_flag = operation_flags["delete_session"]
+
+        query_string = f"{session_id} {delete_session_flag}"
+        try:
+            send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        except socket.error as e:
+            print(f">> Failed to send data to server. ({e})")
+            return 
+        
+        if send_data:
+            print(f">> Sent: '{query_string}' to server to delete_session, size sent data: {send_data}")
+            time.sleep(0.2)
+            if len(self.data_tokens) == 1:
+                if int(self.data_tokens[0]) == response_flags["ERROR"]:
+                    print(f">> Неизвестная ошибка при удалении сессии: {session_id}")
+                    return "ERROR"
+                if int(self.data_tokens[0]) == response_flags["EXCEPTION"]:
+                    print(f">> Неизвестное исключение при удалении сессии: {session_id}")
+                    return "EXCEPTION"
+                if int(self.data_tokens[0]) == response_flags["OK"]:
+                    print(f">> Успешное удаление сессии: {session_id}")
+                    return True
+        else:
+            print(">> No data sent.")
+            print(">> Не удалось выполнить запрос: code -1")
+            return
+            
+    def validate_session(self, session_id: str) -> bool:
+        """ Метод для проверки сессии в БД для мользователя """
+        response_flags = parse_yaml_config("../src/client/flags.yaml")
+        operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
+        validate_session_flag = operation_flags["validate_session"]
+
+        query_string = f"{session_id} {validate_session_flag}"
+        try:
+            send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        except socket.error as e:
+            print(f">> Failed to send data to server. ({e})")
+            return 
+        
+        if send_data:
+            print(f">> Sent: '{query_string}' to server to delete_session, size sent data: {send_data}")
+            time.sleep(0.2)
+            if len(self.data_tokens) == 1:
+                if int(self.data_tokens[0]) == response_flags["ERROR"]:
+                    print(f">> Неизвестная ошибка при проверки сессии: {session_id}")
+                    return "ERROR"
+                if int(self.data_tokens[0]) == response_flags["EXCEPTION"]:
+                    print(f">> Неизвестное исключение при проверки сессии: {session_id}")
+                    return "EXCEPTION"
+                if int(self.data_tokens[0]) == response_flags["OK"]:
+                    print(f">> Успешная проверка сессии: {session_id}")
+                    return True
+            else:
+                print(">> No data sent.")
+                print(">> Не удалось выполнить запрос: code -1")
+                return
+            
+    def update_session(self, session_id: str, online_value: bool) -> bool:
+        """ Метод для обновления сессии. Онлайн/Офлайн """
+        response_flags = parse_yaml_config("../src/client/flags.yaml")
+        operation_flags = parse_yaml_config("../src/client/server_flags.yaml")
+        update_session_flag = operation_flags["update_session"]
+
+        query_string = f"{session_id} {online_value} {update_session_flag}"
+        try:
+            send_data = self.socket_peer.send(query_string.encode("utf-8"))
+        except socket.error as e:
+            print(f">> Failed to send data to server. ({e})")
+            return 
+        
+        if send_data:
+            print(f">> Sent: '{query_string}' to server to update_session, size sent data: {send_data}")
+            time.sleep(0.2)
+            if len(self.data_tokens) == 1:
+                if int(self.data_tokens[0]) == response_flags["ERROR"]:
+                    print(f">> Неизвестная ошибка при обновлении сессии: {session_id}")
+                    return "ERROR"
+                if int(self.data_tokens[0]) == response_flags["EXCEPTION"]:
+                    print(f">> Неизвестное исключение при обновлении сессии: {session_id}")
+                    return "EXCEPTION"
+                if int(self.data_tokens[0]) == response_flags["OK"]:
+                    print(f">> Успешное обновление сессии: {session_id}")
+                    return True
+        else:
+            print(">> No data sent.")
+            print(">> Не удалось выполнить запрос: code -1")
+            return
+        
     def get_user_name(self, email) -> str:
         """ Метод для получения имени пользователя по email """
         response_flags = parse_yaml_config("../src/client/flags.yaml")
@@ -185,15 +311,16 @@ class Client:
             # Пользователь найден
             elif int(self.recv_data.decode("utf-8")) == response_flags["OK"]:
                 print(">> Авторизация прошла успешно")
+                username = self.get_user_name(email)
+                self.create_session(username)
                 signin_scene.run = False
-                user_name = self.get_user_name(email)
                 main_game_scene = MainGameScene(screen=scene_params[0], 
                                                 settings=scene_params[1], 
-                                                client=scene_params[2], 
+                                                client=self, 
                                                 db=scene_params[3], 
                                                 db_config=scene_params[4], 
                                                 bg="../src/imgs/main_game_scene.png", 
-                                                user=user_name,
+                                                user=username,
                                                 main_menu=main_menu)
                 main_game_scene.main()
             # Пользователь не найден
@@ -364,7 +491,7 @@ class Client:
                 if int(self.data_tokens[0]) == response_flags["ERROR"]:
                     print(">> Неизвестная ошибка при получении кол-ва CD дисков пользователя")
                     return "ERROR"
-                if int(self.data_tokens[-1][0]) == response_flags["EXCEPTION"]:
+                if int(self.data_tokens[0]) == response_flags["EXCEPTION"]:
                     print(">> Неизвестное исключение при получении получении кол-ва CD дисков пользователя")
                     return "EXCEPTION"
             else:
@@ -392,7 +519,7 @@ class Client:
                 if int(self.data_tokens[0]) == response_flags["ERROR"]:
                     print(">> Неизвестная ошибка при получении кол-ва CD дисков пользователя")
                     return "ERROR"
-                if int(self.data_tokens[-1][0]) == response_flags["EXCEPTION"]:
+                if int(self.data_tokens[0]) == response_flags["EXCEPTION"]:
                     print(">> Неизвестное исключение при получении получении кол-ва CD дисков пользователя")
                     return "EXCEPTION"
             else:

@@ -152,6 +152,9 @@ int main(void) {
 
                     buffer[bytes_received] = '\0';
 
+
+                    //********************************/
+                    //* ПРИНИМАЕМ ДАННЫЕ ОТ КЛИЕНТА *//
                     printf(">> Client %s Received: %s\n", address_buffer, buffer);
 
                     // Парсим данные из запроса
@@ -163,8 +166,11 @@ int main(void) {
                     }
 
                     printf(">> Data count: %d\n", data_count);
-
+                    
+                    //* Для числовый результатов
                     int result;
+                    //*************************/
+
                     char result_buffer[MAX_RESULT_LENGTH + 1];
 
                     if (atoi(data[data_count - 1]) == ACCOUNT_REGISTRATION) {
@@ -264,8 +270,42 @@ int main(void) {
                             printf(">> Data sent to client %s\n", result_buffer);
                         }
                         continue;
+                    } else if (atoi(data[data_count-1]) == CREATE_SESSION) {
+                        //* Запрос на создание сессии       
+                        printf(">> Starting creating session for client %s\n", data[0]);
+                        char* session_id = create_session(data);
+                        if (session_id == NULL) {
+                            fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                            continue;
+                        }
+                        snprintf(result_buffer, MAX_RESULT_LENGTH, "%s %d", session_id, QUERY_SUCCESS);
+                        result_buffer[MAX_RESULT_LENGTH] = '\0';
+                        if (result_buffer == NULL) {
+                            fprintf(stderr, ">> Failed to allocate memory for result buffer\n");
+                            continue;
+                        }
+                        if (send(client_socket, result_buffer, strlen(result_buffer), 0) == -1) {
+                            fprintf(stderr, ">> Failed to send data to client: 'NULL RESULT'\n");
+                        } else {
+                            printf(">> Data sent to client %s\n", result_buffer);
+                        }
+                        continue;
+                    } else if (atoi(data[data_count-1]) == DELETE_SESSION) {
+                        //* Запрос на удаление сессии
+                        printf(">> Starting deleting session for session %s\n", data[0]);
+                        result = delete_session(data);
+
+                    } else if (atoi(data[data_count-1]) == VALIDATE_SESSION) {
+                        //* Запрос на проверку сессии
+                        printf(">> Starting dalidating session for session %s\n", data[0]);
+                        result = validate_session(data);
+                    } else if (atoi(data[data_count-1]) == VALIDATE_SESSION) {
+                        //* Запрос на обновления поля online у сессии
+                        printf(">> Starting updating session for session %s\n", data[0]);
+                        result = update_session(data);
                     }
-                    
+                    //************************************************************************** */
+
 
                     if (result == QUERY_ERROR) {
                         fprintf(stderr, ">> Failed to send data to database: 'NULL RESULT'\n");
